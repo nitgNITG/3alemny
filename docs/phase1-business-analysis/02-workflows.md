@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.8 — WF-06 resolved; configurable settings policy added
+**Version:** 1.9 — WF-07 resolved
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -41,9 +41,9 @@
 | Q-CN-3 | Teacher paid on student no-show? | **Yes** — teacher receives compensation (configurable ON/OFF) | ✅ Resolved |
 | Q-CN-4 | Teacher cancellations before admin alert? | **3** (configurable) | ✅ Resolved |
 | Q-CN-5 | Admin can override credit decisions? | **Yes** — admin can refund or deduct any credit manually | ✅ Resolved |
-| Q-AT-1 | Attendance % threshold? | ⬜ Pending |
-| Q-AT-2 | Teacher can manually override attendance? | ⬜ Pending |
-| Q-AT-3 | Grace period for late joining? | ⬜ Pending |
+| Q-AT-1 | Attendance % threshold? | **70%** (configurable in settings) | ✅ Resolved |
+| Q-AT-2 | Teacher can manually override attendance? | **Yes** | ✅ Resolved |
+| Q-AT-3 | Grace period for late joining? | **10 minutes** default (configurable in settings) | ✅ Resolved |
 | Q-RC-1 | Recording access costs a credit? | ⬜ Pending |
 | Q-RC-2 | Recording retention days? | ⬜ Pending |
 | Q-RC-3 | Download or stream only? | ⬜ Pending |
@@ -398,6 +398,8 @@ Admin can manually:
 | `max_active_bookings` | `12` | Number | Max upcoming bookings per student |
 | `booking_min_notice_hours` | `1` | Number | Min hours in advance a student can book |
 | `teacher_cancel_strike_reset` | `ON` | Yes/No | Admin can reset teacher strike count |
+| `late_join_grace_minutes` | `10` | Number | Minutes after session start student can join without penalty |
+| `teacher_attendance_override` | `ON` | Yes/No | Teacher can manually edit student attendance after session |
 
 **Business Rules confirmed for WF-06:**
 - ✅ Student can cancel **more than 1 hour** before → full credit refund
@@ -438,10 +440,13 @@ T-15 min: System sends reminder to both parties
           "attended"   "partial"    "absent"      ──► admin alert
 ```
 
-**Pending Decisions:**
-- [ ] **Q-AT-1:** Minimum % to be marked "attended"? (e.g., 70%) — configurable per admin?
-- [ ] **Q-AT-2:** Can teacher manually override a student's attendance status?
-- [ ] **Q-AT-3:** Is there a grace period for late joining that doesn't penalise the student?
+**Business Rules confirmed for WF-07:**
+- ✅ Attendance threshold: **≥ 70%** of session duration = "attended" (configurable)
+- ✅ **< 70%** but joined = "partial"
+- ✅ **Never joined** = "absent"
+- ✅ **Teacher absent** → admin alert triggered
+- ✅ **Grace period: 10 minutes** — student joining within 10 min of start is not penalised (configurable)
+- ✅ **Teacher can manually override** any student's attendance status after the session (e.g. internet disconnection)
 
 ---
 
