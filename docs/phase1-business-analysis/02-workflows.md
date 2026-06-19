@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.4 — WF-03 answers incorporated
+**Version:** 1.5 — WF-03 corrected & completed
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -18,10 +18,12 @@
 | Q-WF01-1 | Who creates student account? | **Both** — student self-registers OR admin creates | ✅ Resolved |
 | Q-WF01-2 | Is course required before buying package? | **No** — buy package first, enrol later | ✅ Resolved |
 | Q-AV-1 | Min/max slot duration? | **Fixed: 50 minutes** | ✅ Resolved |
-| Q-AV-2 | How far ahead can teacher set availability? | **Unlimited** — system records actual join/leave times | ✅ Resolved |
+| Q-AV-2 | How far ahead can teacher set availability? | Teacher defines weekly schedule (working hours/days); slots auto-generated from it | ✅ Resolved |
+| Q-AV-2b | Recording retention before archive? | **30 days** (configurable in admin settings) | ✅ Resolved |
 | Q-AV-3 | Buffer time between sessions? | **10 minutes** auto-enforced after each session | ✅ Resolved |
-| Q-AV-4 | Slots for specific students only? | **Yes** — teacher can restrict a slot to one student | ✅ Resolved |
-| Q-AV-5 | Timezone handling? | **Egypt only** (Africa/Cairo, single timezone) | ✅ Resolved |
+| Q-AV-4 | Slots for specific students only? | **Yes** — teacher restricts slot → student gets Accept/Reject → if rejected, slot reopens for all | ✅ Resolved |
+| Q-AV-4b | Student reschedule window? | Student can reschedule up to **30 minutes before** session start | ✅ Resolved |
+| Q-AV-5 | Timezone handling? | **Multi-timezone** — each user sees times in their own timezone; teacher sets in their TZ, student sees in theirs | ✅ Resolved |
 | Q-BK-1 | Auto-accept per teacher or platform-wide? | ⬜ Pending |
 | Q-BK-2 | When is credit deducted? | ⬜ Pending |
 | Q-BK-3 | Multiple sessions per day with same teacher? | ⬜ Pending |
@@ -152,52 +154,85 @@
 ## WF-03 — Teacher Availability Management ✅ RESOLVED
 
 ```
-[Teacher] ──► Opens Availability Calendar
+[Teacher] ──► Opens Availability Settings
                     │
                     ▼
-              Adds available time slots
-              ┌─────────────────────────────────────┐
-              │ SLOT RULES:                         │
-              │ • Fixed duration: 50 minutes        │
-              │ • Auto 10-min buffer after each     │
-              │   slot (system enforced)            │
-              │ • Effective slot block = 60 min     │
-              │ • Publish ahead: unlimited          │
-              │ • Timezone: Africa/Cairo only       │
-              └─────────────────────────────────────┘
+              Defines WEEKLY SCHEDULE
+              (working days + working hours, per their timezone)
+              e.g. Sun–Thu, 10:00–18:00 (Cairo)
+                   Mon–Fri, 09:00–17:00 (Riyadh)
                     │
                     ▼
-              For each slot, teacher chooses:
-              ┌───────────────────────────┐
-              │ A) Open — any enrolled    │
-              │    student can book       │
-              │                           │
-              │ B) Reserved — for one     │
-              │    specific student only  │
-              └───────────────────────────┘
+              System auto-generates 50-min bookable slots
+              within those hours, with 10-min buffer between
+              Effective block per slot = 60 minutes
                     │
                     ▼
-              Sets blocked dates (holidays, personal leave)
+              Teacher can also set BLOCKED DATES
+              (holidays, leave, personal commitments)
+              → blocked dates have no available slots
                     │
                     ▼
-              System shows slots to eligible students:
-              • "Open" slots → all enrolled students see them
-              • "Reserved" slots → only that student sees them
+              For each slot, teacher chooses visibility:
+              ┌────────────────────────────────────────┐
+              │ A) OPEN — any enrolled student can     │
+              │    see and book                        │
+              │                                        │
+              │ B) RESERVED — assigned to ONE specific │
+              │    student only                        │
+              └────────────────────────────────────────┘
                     │
                     ▼
-              Attendance tracked automatically:
-              • Join time recorded when participant joins
-              • Leave time recorded when participant leaves
-              • Duration = leave_time − join_time
+         ┌──────────┴────────────────────────────┐
+         ▼  (Open slots)                         ▼  (Reserved slots)
+  Students see slot                    Target student gets notification
+  in their own timezone                "Teacher reserved a slot for you"
+  and can book directly                Student: ACCEPT or REJECT
+  → go to WF-04                                │
+                                    ┌───────────┴──────────┐
+                                    ▼ Accept               ▼ Reject
+                              Credit deducted         Slot reopens
+                              Session confirmed       as OPEN for all
+                              → go to WF-04 end       students
+
+  RESCHEDULING:
+  Student can reschedule any booked session
+  → up to 30 minutes before session start time
+  → picks a different open slot from same teacher
+  → original slot is released back to Open pool
+```
+
+**Attendance & Recordings:**
+```
+  Session ends
+       │
+       ▼
+  System records:
+  • join_time (when participant joined)
+  • leave_time (when participant left)
+  • duration = leave_time − join_time
+       │
+       ▼
+  Recording saved and available to student for 30 days
+  (configurable in admin settings)
+       │
+       ▼
+  After 30 days → recording moved to ARCHIVE
+  (no longer visible on student dashboard)
 ```
 
 **Business Rules confirmed for WF-03:**
-- ✅ Session duration is **fixed at 50 minutes**
-- ✅ **10-minute buffer** automatically enforced after each session (teacher's next slot cannot start for 60 min)
-- ✅ Teacher can publish availability **as far ahead as they want** (no cap)
-- ✅ Teacher can **restrict a slot to one specific student**
-- ✅ Platform is **Egypt-only** — single timezone `Africa/Cairo`, all times displayed in EET/EEST
-- ✅ System records actual **join time and leave time** for each participant
+- ✅ Session duration is **fixed at 50 minutes** per slot
+- ✅ **10-minute buffer** auto-enforced after each session (effective block = 60 min)
+- ✅ Teacher defines a **weekly schedule** (working hours/days); slots are auto-generated from it
+- ✅ Teacher can mark **blocked dates** (holidays, leave)
+- ✅ Teacher can **reserve a slot for one specific student** — student must Accept/Reject
+- ✅ If student **rejects** a reserved slot → slot reopens as Open for all
+- ✅ If student **accepts** → credit deducted from their wallet
+- ✅ Student can **reschedule up to 30 minutes** before session start
+- ✅ **Multi-timezone** — teacher sets schedule in their local timezone; students see all times in their own timezone
+- ✅ Recordings available for **30 days** then archived (default configurable in admin settings)
+- ✅ System records actual **join time and leave time** per participant
 
 ---
 
