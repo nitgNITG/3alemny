@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.7 — WF-05 resolved
+**Version:** 1.8 — WF-06 resolved; configurable settings policy added
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -36,11 +36,11 @@
 | Q-AP-1 | Teacher response window? | **Until start of teacher's first session** on the booked day | ✅ Resolved |
 | Q-AP-2 | Expired requests — auto-reject or stays pending? | **Auto-cancel** if deadline passed before session; **stays pending** if session is live (teacher may accept mid-session); **credit refunded** if session ends with no attendance | ✅ Resolved |
 | Q-AP-3 | Does student see rejection reason? | **Yes** | ✅ Resolved |
-| Q-CN-1 | Cancellation window? | ⬜ Pending |
-| Q-CN-2 | Partial credit refund supported? | ⬜ Pending |
-| Q-CN-3 | Teacher paid on student no-show? | ⬜ Pending |
-| Q-CN-4 | How many teacher cancellations = admin alert? | ⬜ Pending |
-| Q-CN-5 | Can admin override any cancellation? | ⬜ Pending |
+| Q-CN-1 | Cancellation window? | **1 hour** before session (configurable) | ✅ Resolved |
+| Q-CN-2 | Late cancellation credit outcome? | **Full forfeit** — credit lost if cancelled inside window (configurable) | ✅ Resolved |
+| Q-CN-3 | Teacher paid on student no-show? | **Yes** — teacher receives compensation (configurable ON/OFF) | ✅ Resolved |
+| Q-CN-4 | Teacher cancellations before admin alert? | **3** (configurable) | ✅ Resolved |
+| Q-CN-5 | Admin can override credit decisions? | **Yes** — admin can refund or deduct any credit manually | ✅ Resolved |
 | Q-AT-1 | Attendance % threshold? | ⬜ Pending |
 | Q-AT-2 | Teacher can manually override attendance? | ⬜ Pending |
 | Q-AT-3 | Grace period for late joining? | ⬜ Pending |
@@ -359,26 +359,54 @@
 
 ---
 
-## WF-06 — Session Cancellation
+## WF-06 — Session Cancellation ✅ RESOLVED
 
 ```
-WHO cancels?    WHEN?                    CREDIT OUTCOME             TEACHER IMPACT
-──────────────────────────────────────────────────────────────────────────────────
-Student         Before window [TBD]      Full credit refund         None
-Student         Within window [TBD]      [TBD — full/partial/none]  [TBD — paid?]
-Student         No-show                  [TBD — forfeited/refunded] [TBD — paid?]
-Teacher         Any time                 Full refund to student     Strike logged
-Teacher         Nth cancellation [TBD]   Full refund to student     Admin alerted
-System/Tech     Any time                 Full refund                No penalty
-──────────────────────────────────────────────────────────────────────────────────
+WHO cancels?    WHEN?                     CREDIT OUTCOME              TEACHER IMPACT
+───────────────────────────────────────────────────────────────────────────────────
+Student         > 1 hr before session     Full credit REFUNDED        None
+Student         ≤ 1 hr before session     Credit FORFEITED (no refund) None
+Student         No-show                   Credit FORFEITED            Teacher COMPENSATED ✅
+Teacher         Any time                  Full refund to student      Strike +1 logged
+Teacher         3rd cancellation          Full refund to student      Admin ALERTED 🔔
+System/Tech     Any time                  Full refund                 No penalty
+───────────────────────────────────────────────────────────────────────────────────
 ```
 
-**Pending Decisions:**
-- [ ] **Q-CN-1:** What is the cancellation window? (hours before session, configurable?)
-- [ ] **Q-CN-2:** If student cancels within window — full forfeit, partial refund, or full refund?
-- [ ] **Q-CN-3:** On student no-show — does teacher get credited / compensated?
-- [ ] **Q-CN-4:** After how many teacher cancellations does admin receive an alert?
-- [ ] **Q-CN-5:** Can admin override any cancellation credit decision?
+```
+ADMIN OVERRIDE (always available):
+Admin can manually:
+  ├── Refund a forfeited credit to any student
+  ├── Deduct a credit from any student wallet
+  ├── Clear teacher strike count
+  └── Adjust teacher compensation for any session
+```
+
+**🔧 Platform Settings (all configurable by Admin):**
+
+| Setting Key | Default | Type | Description |
+|-------------|---------|------|-------------|
+| `cancellation_window_hours` | `1` | Number | Hours before session — student can cancel with full refund |
+| `late_cancel_forfeit` | `ON` | Yes/No | Credit forfeited if cancelled inside window |
+| `noshow_teacher_compensation` | `ON` | Yes/No | Teacher compensated on student no-show |
+| `teacher_cancel_alert_threshold` | `3` | Number | Number of teacher cancellations before admin alert |
+| `admin_credit_override` | `ON` | Yes/No | Admin can manually refund/deduct credits |
+| `recording_retention_days` | `30` | Number | Days before recording is archived |
+| `attendance_threshold_pct` | `70` | Number | Min % attendance to mark session as "attended" |
+| `session_buffer_minutes` | `10` | Number | Auto-gap enforced between consecutive sessions |
+| `student_reschedule_window_minutes` | `30` | Number | Minutes before session — student can still reschedule |
+| `max_active_bookings` | `12` | Number | Max upcoming bookings per student |
+| `booking_min_notice_hours` | `1` | Number | Min hours in advance a student can book |
+| `teacher_cancel_strike_reset` | `ON` | Yes/No | Admin can reset teacher strike count |
+
+**Business Rules confirmed for WF-06:**
+- ✅ Student can cancel **more than 1 hour** before → full credit refund
+- ✅ Student cancels **within 1 hour** → credit **forfeited** (no refund)
+- ✅ Student **no-show** → credit forfeited + **teacher compensated**
+- ✅ Teacher cancels → full refund to student + **strike logged**
+- ✅ **3rd teacher cancellation** → admin receives alert
+- ✅ **Admin can override** any credit decision at any time
+- ✅ **All numeric thresholds and yes/no policies** are configurable in admin settings
 
 ---
 
