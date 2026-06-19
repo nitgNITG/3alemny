@@ -1,8 +1,8 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.9 — WF-07 resolved
-**Status:** 🟡 IN PROGRESS — remaining questions below
+**Version:** 2.0 — ALL workflows resolved ✅
+**Status:** 🟢 APPROVED — all decisions resolved
 
 ---
 
@@ -44,11 +44,11 @@
 | Q-AT-1 | Attendance % threshold? | **70%** (configurable in settings) | ✅ Resolved |
 | Q-AT-2 | Teacher can manually override attendance? | **Yes** | ✅ Resolved |
 | Q-AT-3 | Grace period for late joining? | **10 minutes** default (configurable in settings) | ✅ Resolved |
-| Q-RC-1 | Recording access costs a credit? | ⬜ Pending |
-| Q-RC-2 | Recording retention days? | ⬜ Pending |
-| Q-RC-3 | Download or stream only? | ⬜ Pending |
-| Q-RC-4 | Teacher can disable recording per session? | ⬜ Pending |
-| Q-RC-5 | Parent access automatic or teacher grants? | ⬜ Pending |
+| Q-RC-1 | Recording access costs a credit? | **No credit cost** — but max view count applies (configurable) | ✅ Resolved |
+| Q-RC-2 | Recording retention days? | **30 days** then archived (configurable in settings) | ✅ Resolved |
+| Q-RC-3 | Download or stream only? | **Stream only** — no download permitted | ✅ Resolved |
+| Q-RC-4 | Teacher can disable recording per session? | **No** — all sessions are always recorded | ✅ Resolved |
+| Q-RC-5 | Parent access automatic or teacher grants? | **Via student account** — parent sees recordings through the linked student's account | ✅ Resolved |
 
 ---
 
@@ -400,6 +400,8 @@ Admin can manually:
 | `teacher_cancel_strike_reset` | `ON` | Yes/No | Admin can reset teacher strike count |
 | `late_join_grace_minutes` | `10` | Number | Minutes after session start student can join without penalty |
 | `teacher_attendance_override` | `ON` | Yes/No | Teacher can manually edit student attendance after session |
+| `recording_max_views` | `5` | Number | Max times a student can stream a recording |
+| `recording_allow_download` | `OFF` | Yes/No | Allow students to download recordings (stream-only by default) |
 
 **Business Rules confirmed for WF-06:**
 - ✅ Student can cancel **more than 1 hour** before → full credit refund
@@ -450,7 +452,7 @@ T-15 min: System sends reminder to both parties
 
 ---
 
-## WF-08 — Recording Access
+## WF-08 — Recording Access ✅ RESOLVED
 
 ```
 Session ends
@@ -463,28 +465,35 @@ Background task: download from Zoom → upload to Bunny/VdoCipher
       │
       ▼
 Recording status = 'ready'
-Watermark applied: student name + date
+Watermark applied: student name + date (stream-level DRM)
       │
       ▼
 Access granted to:
-  ✓ Teacher — always
-  ✓ Student — if attended OR teacher manually grants
-  ✓ Parent  — automatic or teacher grants? [TBD — Q-RC-5]
+  ✓ Teacher — always (own sessions)
+  ✓ Student — if attendance status = attended OR partial
+              (absent students do NOT get access)
+  ✓ Parent  — via linked student's account
+              (parent logs in as student view — same recordings)
   ✗ Others  — never
       │
       ▼
-Stream only (no download) [TBD — Q-RC-3]
+STREAM ONLY — no download permitted
+View count tracked per student per recording
+Max views: configurable (default 5)
       │
       ▼
-Auto-delete after [TBD — Q-RC-2] days
+After 30 days (configurable) → recording ARCHIVED
+No longer accessible on student dashboard
+Teacher and admin can still access archived recordings
 ```
 
-**Pending Decisions:**
-- [ ] **Q-RC-1:** Does watching a recording cost a credit?
-- [ ] **Q-RC-2:** How many days are recordings kept before auto-deletion?
-- [ ] **Q-RC-3:** Stream only or can student download?
-- [ ] **Q-RC-4:** Can teacher disable recording for a specific session?
-- [ ] **Q-RC-5:** Is parent recording access automatic (same as student) or must teacher grant it separately?
+**Business Rules confirmed for WF-08:**
+- ✅ Watching a recording **costs no credit**
+- ✅ **Max view count** per recording per student (configurable in settings)
+- ✅ Recordings available for **30 days** then archived (configurable)
+- ✅ **Stream only** — downloading is not permitted (DRM via Bunny/VdoCipher)
+- ✅ **All sessions are always recorded** — teacher cannot opt out per session
+- ✅ **Parent access:** parent sees recordings through the linked student's account (not a separate permission — same view as student)
 
 ---
 
