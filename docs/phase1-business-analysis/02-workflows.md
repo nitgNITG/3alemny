@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.2 — WF-02 answers incorporated
+**Version:** 1.3 — WF-01 answers incorporated
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -15,8 +15,8 @@
 | Q-PKG-3 | Credits per-subject or platform-wide? | **Platform-wide** — credits work across all courses | ✅ Resolved |
 | Q-PKG-4 | Can packages be gifted / transferred? | **No** | ✅ Resolved |
 | Q-PKG-5 | What currency? | **EGP (Egyptian Pound)** | ✅ Resolved |
-| Q-WF01-1 | Who creates student account? | ⬜ Pending |
-| Q-WF01-2 | Is course required before buying package? | ⬜ Pending |
+| Q-WF01-1 | Who creates student account? | **Both** — student self-registers OR admin creates | ✅ Resolved |
+| Q-WF01-2 | Is course required before buying package? | **No** — buy package first, enrol later | ✅ Resolved |
 | Q-AV-1 | Min/max slot duration? | ⬜ Pending |
 | Q-AV-2 | How far ahead can teacher set availability? | ⬜ Pending |
 | Q-AV-3 | Buffer time between sessions? | ⬜ Pending |
@@ -47,25 +47,46 @@
 
 ---
 
-## WF-01 — Student Registration & Onboarding
+## WF-01 — Student Registration & Onboarding ✅ RESOLVED
 
 ```
-[Student] ──► Registers on Moodle (or Admin creates account)
+                    ┌─────────────────────────────────────┐
+                    │  Account Creation (BOTH supported): │
+                    │  A) Student self-registers          │
+                    │  B) Admin creates account           │
+                    └─────────────────────────────────────┘
                     │
-                    ▼
-              Admin assigns student to Course(s)
-                    │
-                    ▼
-              Student profile visible in system
+              ┌─────┴──────────────────────┐
+              ▼                            ▼
+      [A] Self-registration           [B] Admin creates
+      Student fills sign-up form      Admin opens Users area
+      Moodle creates account          Creates user profile
+              │                            │
+              └──────────────┬─────────────┘
+                             ▼
+              Student profile exists in system
               Credits = 0 | No active package
-                    │
-                    ▼
-              Student directed to ──► [Package Purchase WF-02]
+                             │
+                             ▼
+              ┌─────────────────────────────────────┐
+              │ NEXT STEPS (any order):             │
+              │ 1) Buy a package → get credits      │
+              │ 2) Enrol in a course (optional now) │
+              │ 3) Browse teachers & book sessions  │
+              └─────────────────────────────────────┘
+                             │
+                             ▼
+              Packages are for LIVE SESSIONS only.
+              No enrolment required before purchase.
+              Student can enrol after buying and
+              select different teachers per course.
 ```
 
-**Pending Decisions:**
-- [ ] **Q-WF01-1:** Who creates the student account — student self-registers or admin only?
-- [ ] **Q-WF01-2:** Is a course enrolment mandatory before buying a package?
+**Business Rules confirmed for WF-01:**
+- ✅ Student can self-register **or** admin creates the account
+- ✅ No course enrolment required before buying a package
+- ✅ Packages are scoped to **live sessions only** (not general Moodle content)
+- ✅ Student can enrol in any course after purchasing and pick different teachers
 
 ---
 
