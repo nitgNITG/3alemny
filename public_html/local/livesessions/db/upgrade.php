@@ -315,5 +315,23 @@ function xmldb_local_livesessions_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2024060101, 'local', 'livesessions');
     }
 
+    // 2024070201 — Private 1-to-1 session fields
+    if ($oldversion < 2024070201) {
+        $table = new xmldb_table('livesessions_sessions');
+        $fields_to_add = [
+            ['session_type',    XMLDB_TYPE_CHAR,    '20', null, XMLDB_NOTNULL, null, 'group'],
+            ['requested_by',    XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0'],
+            ['request_status',  XMLDB_TYPE_CHAR,    '20', null, XMLDB_NOTNULL, null, 'none'],
+            ['request_note',    XMLDB_TYPE_TEXT,    null,  null, null, null, null],
+            ['reject_reason',   XMLDB_TYPE_TEXT,    null,  null, null, null, null],
+            ['meeting_password', XMLDB_TYPE_CHAR,   '64', null, null, null, null],
+        ];
+        foreach ($fields_to_add as $fdef) {
+            $field = new xmldb_field($fdef[0], $fdef[1], $fdef[2], $fdef[3], $fdef[4], $fdef[5], $fdef[6]);
+            if (!$dbman->field_exists($table, $field)) { $dbman->add_field($table, $field); }
+        }
+        upgrade_plugin_savepoint(true, 2024070201, 'local', 'livesessions');
+    }
+
     return true;
 }

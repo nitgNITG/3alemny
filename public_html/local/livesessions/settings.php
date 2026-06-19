@@ -53,6 +53,38 @@ if ($hassiteconfig) {
     ));
 
     // ---------------------------------------------------------------
+    // Zoom Server-to-Server OAuth (for auto-creating meetings)
+    // ---------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_livesessions/zoom_s2s_heading',
+        get_string('zoom_s2s_heading', 'local_livesessions'),
+        get_string('zoom_s2s_heading_desc', 'local_livesessions')
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_livesessions/zoom_api_account_id',
+        get_string('zoom_api_account_id',      'local_livesessions'),
+        get_string('zoom_api_account_id_desc', 'local_livesessions'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_livesessions/zoom_api_client_id',
+        get_string('zoom_api_client_id',      'local_livesessions'),
+        get_string('zoom_api_client_id_desc', 'local_livesessions'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_livesessions/zoom_api_client_secret',
+        get_string('zoom_api_client_secret',      'local_livesessions'),
+        get_string('zoom_api_client_secret_desc', 'local_livesessions'),
+        ''
+    ));
+
+    // ---------------------------------------------------------------
     // Webhook secret
     // ---------------------------------------------------------------
     $settings->add(new admin_setting_configpasswordunmask(

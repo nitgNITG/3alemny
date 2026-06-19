@@ -102,6 +102,14 @@ $capabilities = [
         ],
     ],
 
+    'local/livesessions:requestSession' => [
+        'captype'      => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes'   => [
+            'student' => CAP_ALLOW,
+        ],
+    ],
+
     'local/livesessions:viewRecording' => [
         'captype'      => 'read',
         'contextlevel' => CONTEXT_COURSE,

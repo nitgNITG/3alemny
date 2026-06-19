@@ -40,14 +40,36 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_livesessions'));
 
 // ---------------------------------------------------------------
-// Create button (teachers/admins)
+// Action buttons row
 // ---------------------------------------------------------------
+$action_btns = '';
+
+// Teacher: Create group session + view pending requests.
 if ($courseid && has_capability('local/livesessions:createSession', $context)) {
-    $createurl = new moodle_url('/local/livesessions/edit.php', ['courseid' => $courseid]);
-    echo html_writer::div(
-        $OUTPUT->single_button($createurl, get_string('createsession', 'local_livesessions'), 'get'),
-        'mb-3'
-    );
+    $createurl    = new moodle_url('/local/livesessions/edit.php', ['courseid' => $courseid]);
+    $req_url      = new moodle_url('/local/livesessions/teacher_requests.php');
+    $action_btns .= html_writer::link($createurl,
+        '+ ' . get_string('createsession', 'local_livesessions'),
+        ['class' => 'btn btn-primary mr-2']);
+    $action_btns .= html_writer::link($req_url,
+        '📋 ' . get_string('pending_requests', 'local_livesessions'),
+        ['class' => 'btn btn-outline-warning mr-2']);
+}
+
+// Student: Request a private session + My Sessions.
+if ($courseid && has_capability('local/livesessions:requestSession', $context)) {
+    $req_url      = new moodle_url('/local/livesessions/request.php', ['courseid' => $courseid]);
+    $mine_url     = new moodle_url('/local/livesessions/my_sessions.php', ['courseid' => $courseid]);
+    $action_btns .= html_writer::link($req_url,
+        '📅 ' . get_string('request_session', 'local_livesessions'),
+        ['class' => 'btn btn-success mr-2']);
+    $action_btns .= html_writer::link($mine_url,
+        '📂 ' . get_string('my_sessions', 'local_livesessions'),
+        ['class' => 'btn btn-outline-secondary']);
+}
+
+if ($action_btns) {
+    echo html_writer::div($action_btns, 'mb-4');
 }
 
 // ---------------------------------------------------------------

@@ -378,3 +378,60 @@ $string['zoom_sdk_key']           = 'Meeting SDK Key';
 $string['zoom_sdk_key_desc']      = 'Your Zoom Meeting SDK Key (SDK Key, not API Key).';
 $string['zoom_sdk_secret']        = 'Meeting SDK Secret';
 $string['zoom_sdk_secret_desc']   = 'Your Zoom Meeting SDK Secret.';
+
+// ---------------------------------------------------------------
+// 1-to-1 Private Session strings
+// ---------------------------------------------------------------
+$string['request_session']            = 'Request Private Session';
+$string['my_sessions']                = 'My Sessions';
+$string['pending_requests']           = 'Session Requests';
+$string['new_request']                = 'Request New Session';
+$string['no_sessions']                = 'You have no private session requests yet.';
+$string['no_pending']                 = 'No pending requests at the moment.';
+$string['pending_count']              = 'You have {$a->n} pending request(s).';
+$string['select_teacher']             = 'Select Teacher';
+$string['session_date']               = 'Preferred Date';
+$string['session_time']               = 'Preferred Time';
+$string['note_optional']              = 'Note (optional)';
+$string['note_placeholder']           = 'e.g. I need help with Chapter 3 exercises';
+$string['note_help']                  = 'Briefly describe what you would like to discuss in the session.';
+$string['send_request']               = 'Send Request';
+$string['approve']                    = 'Approve';
+$string['reject']                     = 'Reject';
+$string['reject_reason']              = 'Rejection reason';
+$string['reject_reason_placeholder']  = 'Optional reason for rejection';
+$string['no_reason_given']            = 'No reason provided.';
+$string['confirm_approve']            = 'Approve this request? A Zoom meeting will be created automatically.';
+$string['starts_in']                  = 'Starts in {$a->h}h {$a->m}m';
+$string['no_teachers_in_course']      = 'No teachers found in this course.';
+$string['invalid_teacher']            = 'Please select a valid teacher from this course.';
+$string['request_sent']               = 'Your session request has been sent. The teacher will review it shortly.';
+$string['request_approved']           = 'Request approved! Zoom meeting created and student notified.';
+$string['request_rejected']           = 'Request rejected. The student has been notified.';
+$string['status_none']                = 'N/A';
+$string['status_pending']             = 'Pending';
+$string['status_approved']            = 'Approved';
+$string['status_rejected']            = 'Rejected';
+$string['invalidrequest']             = 'This request cannot be modified in its current state.';
+$string['zoom_not_configured']        = 'Zoom API credentials are not configured. Please set them in plugin settings.';
+
+// Zoom S2S OAuth settings
+$string['zoom_s2s_heading']           = 'Zoom Server-to-Server OAuth (Auto Meeting Creation)';
+$string['zoom_s2s_heading_desc']      = 'Used to automatically create Zoom meetings when a teacher approves a private session. Get these from Zoom Marketplace → Server-to-Server OAuth app.';
+$string['zoom_api_account_id']        = 'Account ID';
+$string['zoom_api_account_id_desc']   = 'Your Zoom Account ID from the Server-to-Server OAuth app.';
+$string['zoom_api_client_id']         = 'Client ID';
+$string['zoom_api_client_id_desc']    = 'Your Zoom Client ID from the Server-to-Server OAuth app.';
+$string['zoom_api_client_secret']     = 'Client Secret';
+$string['zoom_api_client_secret_desc']= 'Your Zoom Client Secret from the Server-to-Server OAuth app.';
+
+// Notification strings
+$string['notify_new_request_subject'] = 'New private session request from {$a->student}';
+$string['notify_new_request_body']    = '{$a->student} has requested a private session on {$a->time}. Note: {$a->note}';
+$string['notify_approved_subject']    = 'Your private session has been approved';
+$string['notify_approved_body']       = 'Great news! {$a->teacher} approved your session for {$a->time}. Join here: {$a->join_url}';
+$string['notify_rejected_subject']    = 'Your session request was not approved';
+$string['notify_rejected_body']       = '{$a->teacher} was unable to accept your session request. Reason: {$a->reason}';
+
+$string['zoom_token_error']           = 'Failed to obtain Zoom access token. Check your API credentials.';
+$string['zoom_create_meeting_error']  = 'Failed to create Zoom meeting via API.';
