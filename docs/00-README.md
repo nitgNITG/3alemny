@@ -10,10 +10,10 @@
 
 | Phase | Document | Status |
 |-------|----------|--------|
-| 1 | [Business Requirements (BRD)](phase1-business-analysis/BRD.md) | 🟡 AWAITING APPROVAL |
-| 1 | [Stakeholder Analysis](phase1-business-analysis/stakeholders.md) | 🟡 AWAITING APPROVAL |
-| 1 | [Business Workflows](phase1-business-analysis/workflows.md) | 🟡 AWAITING APPROVAL |
-| 1 | [Business Rules](phase1-business-analysis/business-rules.md) | 🟡 AWAITING APPROVAL |
+| 1 | [Business Requirements (BRD)](phase1-business-analysis/04-BRD.md) | 🟡 AWAITING APPROVAL |
+| 1 | [Stakeholder Analysis](phase1-business-analysis/01-stakeholders.md) | 🟡 AWAITING APPROVAL |
+| 1 | [Business Workflows](phase1-business-analysis/02-workflows.md) | 🟡 AWAITING APPROVAL |
+| 1 | [Business Rules](phase1-business-analysis/03-business-rules.md) | 🟡 AWAITING APPROVAL |
 | 2 | [Functional Requirements (FRD)](phase2-functional-analysis/FRD.md) | ⚪ NOT STARTED |
 | 3 | [User Stories Catalog](phase3-user-stories/user-stories.md) | ⚪ NOT STARTED |
 | 4 | [Master Test Cases](phase4-test-cases/test-cases.md) | ⚪ NOT STARTED |

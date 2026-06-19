@@ -93,15 +93,15 @@
 
 | Document | Link |
 |----------|------|
-| Stakeholder Analysis | [stakeholders.md](stakeholders.md) |
-| Business Workflows | [workflows.md](workflows.md) |
-| Business Rules | [business-rules.md](business-rules.md) |
+| Stakeholder Analysis | [stakeholders.md](01-stakeholders.md) |
+| Business Workflows | [workflows.md](02-workflows.md) |
+| Business Rules | [business-rules.md](03-business-rules.md) |
 
 ---
 
 ## 7. Open Items — MUST be resolved before Phase 2
 
-> See [business-rules.md](business-rules.md) — Section: "Summary of All TBD Items"
+> See [business-rules.md](03-business-rules.md) — Section: "Summary of All TBD Items"
 > **23 questions require answers.**
 
 ---
