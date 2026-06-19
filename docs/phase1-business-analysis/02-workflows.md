@@ -1,7 +1,49 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Status:** 🟡 AWAITING APPROVAL
+**Version:** 1.2 — WF-02 answers incorporated
+**Status:** 🟡 IN PROGRESS — remaining questions below
+
+---
+
+## Decision Log
+
+| ID | Question | Answer | Status |
+|----|----------|--------|--------|
+| Q-PKG-1 | Online payment or admin-manual only? | **Both** — online gateway + admin manual | ✅ Resolved |
+| Q-PKG-2 | Can student have multiple active packages? | **No** — only one active package at a time | ✅ Resolved |
+| Q-PKG-3 | Credits per-subject or platform-wide? | **Platform-wide** — credits work across all courses | ✅ Resolved |
+| Q-PKG-4 | Can packages be gifted / transferred? | **No** | ✅ Resolved |
+| Q-PKG-5 | What currency? | **EGP (Egyptian Pound)** | ✅ Resolved |
+| Q-WF01-1 | Who creates student account? | ⬜ Pending |
+| Q-WF01-2 | Is course required before buying package? | ⬜ Pending |
+| Q-AV-1 | Min/max slot duration? | ⬜ Pending |
+| Q-AV-2 | How far ahead can teacher set availability? | ⬜ Pending |
+| Q-AV-3 | Buffer time between sessions? | ⬜ Pending |
+| Q-AV-4 | Slots for specific students only? | ⬜ Pending |
+| Q-AV-5 | Timezone handling? | ⬜ Pending |
+| Q-BK-1 | Auto-accept per teacher or platform-wide? | ⬜ Pending |
+| Q-BK-2 | When is credit deducted? | ⬜ Pending |
+| Q-BK-3 | Multiple sessions per day with same teacher? | ⬜ Pending |
+| Q-BK-4 | Minimum advance booking notice (hours)? | ⬜ Pending |
+| Q-BK-5 | Can student add note when booking? | ⬜ Pending |
+| Q-BK-6 | Max concurrent active bookings per student? | ⬜ Pending |
+| Q-AP-1 | Teacher response window (hours)? | ⬜ Pending |
+| Q-AP-2 | Expired requests — auto-reject or stays pending? | ⬜ Pending |
+| Q-AP-3 | Does student see rejection reason? | ⬜ Pending |
+| Q-CN-1 | Cancellation window? | ⬜ Pending |
+| Q-CN-2 | Partial credit refund supported? | ⬜ Pending |
+| Q-CN-3 | Teacher paid on student no-show? | ⬜ Pending |
+| Q-CN-4 | How many teacher cancellations = admin alert? | ⬜ Pending |
+| Q-CN-5 | Can admin override any cancellation? | ⬜ Pending |
+| Q-AT-1 | Attendance % threshold? | ⬜ Pending |
+| Q-AT-2 | Teacher can manually override attendance? | ⬜ Pending |
+| Q-AT-3 | Grace period for late joining? | ⬜ Pending |
+| Q-RC-1 | Recording access costs a credit? | ⬜ Pending |
+| Q-RC-2 | Recording retention days? | ⬜ Pending |
+| Q-RC-3 | Download or stream only? | ⬜ Pending |
+| Q-RC-4 | Teacher can disable recording per session? | ⬜ Pending |
+| Q-RC-5 | Parent access automatic or teacher grants? | ⬜ Pending |
 
 ---
 
@@ -15,57 +57,74 @@
                     │
                     ▼
               Student profile visible in system
-              Credits = 0 | No packages yet
+              Credits = 0 | No active package
                     │
                     ▼
               Student directed to ──► [Package Purchase WF-02]
 ```
 
-**Decision Points:**
-- [ ] Who creates the student account — student self-registers or admin only?
-- [ ] Is a course mandatory before buying a package?
+**Pending Decisions:**
+- [ ] **Q-WF01-1:** Who creates the student account — student self-registers or admin only?
+- [ ] **Q-WF01-2:** Is a course enrolment mandatory before buying a package?
 
 ---
 
-## WF-02 — Package Purchase
+## WF-02 — Package Purchase ✅ RESOLVED
 
 ```
 [Student] ──► Views available packages
                     │
                     ▼
               Selects package
-              (e.g., 10 sessions / 30-day validity / Subject: Math)
+              (e.g., 10 sessions / 30-day validity)
+              Currency: EGP
                     │
                     ▼
-              ┌─────────────────────────────┐
-              │  Payment Method?            │
-              │  A) Online (gateway)        │
-              │  B) Manual (admin assigns)  │
-              └─────────────────────────────┘
+              ┌─────────────────────────────────────┐
+              │  Payment Method (BOTH supported):   │
+              │  A) Online payment gateway          │
+              │  B) Admin manual assignment         │
+              └─────────────────────────────────────┘
                     │
-              ┌─────┴──────┐
-              ▼            ▼
-         [Online]      [Manual]
-         Gateway       Admin confirms
-         confirms      in dashboard
-              │            │
-              └─────┬──────┘
-                    ▼
+              ┌─────┴──────────────────────┐
+              ▼                            ▼
+         [A] Online Gateway           [B] Admin Manual
+         Student pays online          Admin opens student profile
+         Gateway confirms             Selects package
+              │                       Clicks "Assign"
+              └──────────┬────────────┘
+                         ▼
+              ┌─────────────────────────────────────┐
+              │ RULES APPLIED:                      │
+              │ • Student must NOT have active       │
+              │   package (only 1 allowed at a time) │
+              │ • Credits are platform-wide          │
+              │   (not subject-locked)               │
+              │ • No gifting or transfer             │
+              │ • Validity: today → today + N days   │
+              └─────────────────────────────────────┘
+                         │
+                         ▼
               Credits added to student wallet
-              Validity start date = today
-              Expiry date = today + package days
-                    │
-                    ▼
-              Student notified:
-              "10 credits added. Valid until DD/MM/YYYY"
+              Package status: ACTIVE
+              Expiry: today + package.validity_days
+                         │
+                         ▼
+              Student notified (email + in-app):
+              "X credits added. Valid until DD/MM/YYYY (EGP)"
+                         │
+                         ▼
+              If student already has ACTIVE package:
+              ──► Error: "You already have an active package.
+                          It expires on DATE."
 ```
 
-**Decision Points:**
-- [ ] Q-PKG-1: Online payment or admin-manual only?
-- [ ] Q-PKG-2: Can student have multiple active packages?
-- [ ] Q-PKG-3: Credits per-subject or platform-wide?
-- [ ] Q-PKG-4: Can packages be gifted / transferred?
-- [ ] Q-PKG-5: What currency?
+**Business Rules confirmed for WF-02:**
+- ✅ Only **1 active package** per student at any time
+- ✅ Credits are **platform-wide** (usable on any course/teacher)
+- ✅ Currency: **EGP**
+- ✅ No package gifting or transfer
+- ✅ Both online payment and admin manual assignment supported
 
 ---
 
@@ -76,226 +135,182 @@
                     │
                     ▼
               Sets weekly recurring slots
-              Example: Mon/Wed/Fri → 4pm–8pm
-              Slot duration: 60 min (or configurable)
+              Slot duration: [TBD — Q-AV-1]
                     │
                     ▼
-              Sets blocked dates
-              (holidays, personal leave)
+              Sets blocked dates (holidays, leave)
                     │
                     ▼
               System generates bookable slots
               Visible to enrolled students
+              Buffer between slots: [TBD — Q-AV-3]
                     │
                     ▼
               Teacher can:
               ├── Edit future unbooked slots ✓
               ├── Delete future unbooked slots ✓
-              ├── Block already-booked slot? ──► triggers reschedule WF
-              └── Set slot as "private" (specific student only)?
+              ├── Block already-booked slot ──► reschedule WF triggered
+              └── Set slot for specific student only? [TBD — Q-AV-4]
 ```
 
-**Decision Points:**
-- [ ] Q-AV-1: Minimum/maximum slot duration?
-- [ ] Q-AV-2: How far ahead can teacher publish availability? (1 week / 1 month / custom)
-- [ ] Q-AV-3: Buffer time required between sessions? (e.g., 15 min break)
-- [ ] Q-AV-4: Can a teacher offer slots to specific students only?
-- [ ] Q-AV-5: Timezone handling — teacher's timezone vs student's timezone?
+**Pending Decisions:**
+- [ ] **Q-AV-1:** Minimum and maximum slot duration (minutes)?
+- [ ] **Q-AV-2:** How far ahead can teacher publish availability?
+- [ ] **Q-AV-3:** Is a buffer time required between sessions?
+- [ ] **Q-AV-4:** Can a teacher restrict a slot to a specific student?
+- [ ] **Q-AV-5:** Timezone — is the platform Egypt-only (EGP currency suggests so) or multi-timezone?
 
 ---
 
 ## WF-04 — Session Booking (Student)
 
 ```
-[Student] ──► Opens teacher profile or calendar
+[Student] ──► Opens teacher calendar / available slots
                     │
                     ▼
               Views available slots
-              (filtered: course match, has credits, no overlap)
+              (filtered: student enrolled, has credits, no overlap)
                     │
                     ▼
-              Selects slot + adds optional note
+              Selects slot
+              Adds note/topic: [TBD — Q-BK-5]
                     │
                     ▼
               ┌──────────────────────────────────┐
               │ System validates:                │
-              │ ✓ Student has ≥1 credit          │
+              │ ✓ Student has active package     │
+              │ ✓ Student has ≥ 1 credit         │
+              │ ✓ Package not expired            │
               │ ✓ Slot still available           │
               │ ✓ No overlapping booking         │
-              │ ✓ Package not expired            │
+              │ ✓ Minimum notice met [TBD Q-BK-4]│
               └──────────────────────────────────┘
                     │
               ┌─────┴──────┐
               ▼            ▼
-           VALID        INVALID
-              │            │
-              ▼            ▼
-         Credit         Error shown
-         RESERVED       (reason given)
-         (not yet        Student cannot
-         deducted)       proceed
+           VALID        INVALID → Error shown, booking blocked
               │
               ▼
-         ┌────────────────────────┐
-         │ Teacher approval mode? │
-         └────────────────────────┘
+         Credit RESERVED (held, not yet deducted)
+         Deduction timing: [TBD — Q-BK-2]
+              │
+              ▼
+         ┌──────────────────────────────┐
+         │ Teacher approval mode?       │
+         │ [TBD — Q-BK-1]              │
+         └──────────────────────────────┘
               │
         ┌─────┴──────┐
         ▼            ▼
-   Auto-Accept   Manual Review
-        │            │
-        ▼            ▼
-   Zoom created   Request sent
-   immediately    to teacher
-   Both notified  ──► [WF-05]
+   Auto-Accept   Manual Review ──► [WF-05]
+        │
+        ▼
+   Zoom created immediately
+   Credit deducted [TBD timing]
+   Both notified
 ```
 
-**Decision Points:**
-- [ ] Q-BK-1: Auto-accept per teacher (toggle) or platform-wide setting?
-- [ ] Q-BK-2: When exactly is credit deducted — reservation, approval, or session start?
-- [ ] Q-BK-3: Can student book multiple sessions per day with same teacher?
-- [ ] Q-BK-4: Minimum notice period for booking? (e.g., must book 2h in advance)
-- [ ] Q-BK-5: Can student add a note/topic when booking?
-- [ ] Q-BK-6: Maximum concurrent active bookings per student?
+**Pending Decisions:**
+- [ ] **Q-BK-1:** Auto-accept toggle per teacher, or one platform-wide setting?
+- [ ] **Q-BK-2:** Credit deducted at: (a) booking, (b) teacher approval, or (c) session start?
+- [ ] **Q-BK-3:** Can student book more than 1 session per day with same teacher?
+- [ ] **Q-BK-4:** Minimum advance booking notice in hours?
+- [ ] **Q-BK-5:** Can student add a note/topic when booking?
+- [ ] **Q-BK-6:** Maximum number of pending/upcoming bookings per student at once?
 
 ---
 
 ## WF-05 — Session Approval (Teacher)
 
 ```
-[Teacher] ◄── Notification: new booking request
+[Teacher] ◄── Notification: "New session request from [Student]"
                     │
                     ▼
-              Reviews request:
-              • Student name
-              • Requested date/time
-              • Note/topic
-              • Student's credit balance (visible?)
+              Reviews: student name, date/time, note
+              Must respond within [TBD — Q-AP-1] hours
                     │
               ┌─────┴──────┐
               ▼            ▼
-          APPROVE        REJECT
+          APPROVE       REJECT
               │            │
               ▼            ▼
-         Must respond   Teacher enters
-         within X hours optional reason
-         or auto-expire      │
-              │              ▼
-              ▼         Credit reservation
-         Zoom meeting   RELEASED
-         auto-created   Student notified
-         via API        with reason
-              │         Can rebook
-              ▼
-         Credit DEDUCTED
-         (or at session start?)
+         Zoom meeting  Optional reason entered
+         auto-created  [visible to student? TBD Q-AP-3]
+         via API            │
+              │             ▼
+              ▼        Credit reservation RELEASED
+         Credit DEDUCTED   Student notified
+         [timing TBD]      Can rebook a different slot
               │
               ▼
-         Both parties get:
-         • Zoom join link
-         • Calendar invite
-         • Reminder notification
+         Student receives:
+         • Confirmation notification
+         • Zoom join link (embedded room)
+         • Calendar reminder set
 ```
 
-**Decision Points:**
-- [ ] Q-AP-1: How many hours does teacher have to respond before request expires?
-- [ ] Q-AP-2: What happens to expired requests — auto-reject or stays pending?
-- [ ] Q-AP-3: Does student see teacher's reason for rejection?
+**Pending Decisions:**
+- [ ] **Q-AP-1:** How many hours does teacher have to respond before request expires?
+- [ ] **Q-AP-2:** On expiry — auto-reject and notify student, or remain pending indefinitely?
+- [ ] **Q-AP-3:** Does student see the teacher's rejection reason?
 
 ---
 
 ## WF-06 — Session Cancellation
 
 ```
-WHO cancels?    WHEN?                   CREDIT OUTCOME        TEACHER IMPACT
-─────────────────────────────────────────────────────────────────────────────
-Student         > cancellation window   Full refund           None
-Student         ≤ cancellation window   Credit forfeited      Teacher paid?
-Student         No-show (never joined)  Credit forfeited      Teacher paid?
-Teacher         Any time                Full refund           Penalty flag
-Teacher         3rd cancellation        Full refund           Admin alert
-System/Tech     Any time                Full refund           No penalty
-─────────────────────────────────────────────────────────────────────────────
+WHO cancels?    WHEN?                    CREDIT OUTCOME             TEACHER IMPACT
+──────────────────────────────────────────────────────────────────────────────────
+Student         Before window [TBD]      Full credit refund         None
+Student         Within window [TBD]      [TBD — full/partial/none]  [TBD — paid?]
+Student         No-show                  [TBD — forfeited/refunded] [TBD — paid?]
+Teacher         Any time                 Full refund to student     Strike logged
+Teacher         Nth cancellation [TBD]   Full refund to student     Admin alerted
+System/Tech     Any time                 Full refund                No penalty
+──────────────────────────────────────────────────────────────────────────────────
 ```
 
-```
-[User] ──► Requests cancellation
-                │
-                ▼
-         System checks cancellation window
-                │
-         ┌──────┴───────┐
-         ▼              ▼
-    Within window   Outside window
-         │              │
-         ▼              ▼
-    Credit policy   Full refund
-    applied         processed
-    (see table)
-                │
-                ▼
-         Zoom meeting deleted
-         Both parties notified
-         Slot reopened (if teacher cancelled)
-         Cancellation logged for audit
-```
-
-**Decision Points:**
-- [ ] Q-CN-1: What is the cancellation window? (configurable per admin?)
-- [ ] Q-CN-2: Is partial credit refund supported? (e.g., 50% if cancelled 12h before)
-- [ ] Q-CN-3: Does teacher receive compensation for student no-shows?
-- [ ] Q-CN-4: After how many teacher cancellations does admin get alerted?
-- [ ] Q-CN-5: Can admin override any cancellation decision?
+**Pending Decisions:**
+- [ ] **Q-CN-1:** What is the cancellation window? (hours before session, configurable?)
+- [ ] **Q-CN-2:** If student cancels within window — full forfeit, partial refund, or full refund?
+- [ ] **Q-CN-3:** On student no-show — does teacher get credited / compensated?
+- [ ] **Q-CN-4:** After how many teacher cancellations does admin receive an alert?
+- [ ] **Q-CN-5:** Can admin override any cancellation credit decision?
 
 ---
 
 ## WF-07 — Live Session (Attendance)
 
 ```
-[System] — 15 min before session:
-              Reminder sent to both parties
+T-15 min: System sends reminder to both parties
                     │
 [Teacher] ──► Clicks "Start Session"
+              Zoom meeting opened in embedded room
                     │
-                    ▼
-              Zoom meeting confirmed/created
-              Teacher enters embedded room
+[Student] ──► Clicks "Join Session"
+              Zoom embedded in Moodle page
                     │
-[Student] ──► Joins session (within open window)
+              Webhook: participant.joined ──► join_time logged
                     │
-                    ▼
-              Webhook: participant.joined
-              → Attendance record: join_time saved
+              [ session in progress ]
                     │
-                    ▼
-              Session in progress...
+              Webhook: participant.left  ──► leave_time logged
                     │
-              Webhook: participant.left
-              → Attendance record: leave_time saved
-              → Duration segment calculated
-                    │
-                    ▼
-              Session ends (teacher ends OR endtime passed)
               Webhook: meeting.ended
                     │
-                    ▼
-              Attendance Engine runs:
-              attended_duration / session_duration × 100 = %
+              Attendance Engine:
+              total_attended_minutes / session_duration_minutes × 100
                     │
-              ┌─────┴──────────────────┐
-              ▼          ▼             ▼
-          ≥ threshold  < threshold   Never joined
-          "attended"   "partial"      "absent"
-                    │
-                    ▼
-              Credit handling:
-              (see Business Rules BR-05)
+              ┌─────────┬──────────────┬────────────┐
+              ▼         ▼              ▼             ▼
+          ≥ threshold  < threshold  Never joined  Teacher absent
+          "attended"   "partial"    "absent"      ──► admin alert
 ```
 
-**Decision Points:**
-- [ ] Q-AT-1: What % attendance = "attended"? (configurable per course?)
-- [ ] Q-AT-2: Can teacher manually mark attendance override?
-- [ ] Q-AT-3: Grace period for late joining? (e.g., first 10 min = on time)
+**Pending Decisions:**
+- [ ] **Q-AT-1:** Minimum % to be marked "attended"? (e.g., 70%) — configurable per admin?
+- [ ] **Q-AT-2:** Can teacher manually override a student's attendance status?
+- [ ] **Q-AT-3:** Is there a grace period for late joining that doesn't penalise the student?
 
 ---
 
@@ -305,60 +320,52 @@ System/Tech     Any time                Full refund           No penalty
 Session ends
       │
       ▼
-Zoom sends: recording.completed webhook
+Zoom webhook: recording.completed
       │
       ▼
-Background task downloads recording from Zoom
+Background task: download from Zoom → upload to Bunny/VdoCipher
       │
       ▼
-Uploads to Bunny CDN / VdoCipher
+Recording status = 'ready'
+Watermark applied: student name + date
       │
       ▼
-Recording status → 'ready'
+Access granted to:
+  ✓ Teacher — always
+  ✓ Student — if attended OR teacher manually grants
+  ✓ Parent  — automatic or teacher grants? [TBD — Q-RC-5]
+  ✗ Others  — never
       │
       ▼
-Access rules applied:
-  ✓ Teacher         — always
-  ✓ Student         — if status='attended' OR teacher grants manually
-  ✓ Parent          — same as student (read-only)
-  ✗ Other students  — never
-  ✗ Public          — never
+Stream only (no download) [TBD — Q-RC-3]
       │
       ▼
-Student watches via:
-  Embedded player (in Moodle page)
-  Watermarked (name + timestamp overlay)
-  No download option (stream only)
-      │
-      ▼
-Access expiry (if configured):
-  Recording deleted after X days
+Auto-delete after [TBD — Q-RC-2] days
 ```
 
-**Decision Points:**
-- [ ] Q-RC-1: Does recording access cost a credit?
-- [ ] Q-RC-2: How many days are recordings retained?
-- [ ] Q-RC-3: Can student download or stream only?
-- [ ] Q-RC-4: Can teacher disable recording for a session?
-- [ ] Q-RC-5: Is parent access automatic or must teacher grant it?
+**Pending Decisions:**
+- [ ] **Q-RC-1:** Does watching a recording cost a credit?
+- [ ] **Q-RC-2:** How many days are recordings kept before auto-deletion?
+- [ ] **Q-RC-3:** Stream only or can student download?
+- [ ] **Q-RC-4:** Can teacher disable recording for a specific session?
+- [ ] **Q-RC-5:** Is parent recording access automatic (same as student) or must teacher grant it separately?
 
 ---
 
 ## WF-09 — Parent Monitoring
 
 ```
-[Admin] ──► Links parent account to student account(s)
-                    │
-                    ▼
-[Parent] ──► Logs in → sees Parent Dashboard
-                    │
-                    ▼
-              Views per linked student:
-              • Upcoming sessions
-              • Attendance history (attended/absent/partial)
-              • Credits remaining / expiry date
-              • Recordings (watch only)
-              • Teacher notes (if teacher chooses to share)
+[Admin/Support] ──► Links parent account → student account(s)
+                    One parent can link to MULTIPLE students ✅
+                          │
+[Parent] ──► Logs in → Parent Dashboard
+                          │
+                    Per linked student shows:
+                    • Upcoming sessions (date, teacher, status)
+                    • Attendance history (attended/partial/absent)
+                    • Credits remaining + expiry date
+                    • Recording library (stream only)
+                    • No ability to book or cancel sessions
 ```
 
 ---
@@ -366,20 +373,21 @@ Access expiry (if configured):
 ## WF-10 — Refund Requests
 
 ```
-[Student/Parent] ──► Submits refund request (reason required)
-                            │
-                            ▼
-                     Support Team reviews
-                            │
-                     ┌──────┴──────┐
-                     ▼             ▼
-                  APPROVE       DECLINE
-                     │             │
-                     ▼             ▼
-               Credits returned  Student notified
-               to student wallet with reason
-               Finance log entry
-               created
+[Student or Parent] ──► Submits refund request
+                        Reason field required
+                              │
+                        Support Team / Admin reviews
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+                APPROVE             DECLINE
+                    │                   │
+                    ▼                   ▼
+              Credit restored      Student notified
+              to student wallet    with decline reason
+              Finance log entry
+              created with actor,
+              reason, timestamp
 ```
 
 ---
@@ -387,24 +395,83 @@ Access expiry (if configured):
 ## WF-11 — Package Expiration
 
 ```
-[System CRON — daily] ──► Scans all active packages
-                                  │
-                                  ▼
-                    Finds packages where expiry_date < today
-                                  │
-                                  ▼
-                    Remaining credits → EXPIRED (not usable)
-                                  │
-                                  ▼
-                    Student notified: "X credits expired"
-                    Finance log entry created
-                    ─────────────────────────
-                    7 days BEFORE expiry:
-                    Warning email sent to student + parent
+[System CRON — runs daily at midnight]
+          │
+          ▼
+    Scans all ACTIVE packages
+          │
+          ▼
+    ┌───────────────────────────────┐
+    │ 7 days before expiry_date:   │
+    │ Warning sent → student+parent│
+    └───────────────────────────────┘
+          │
+          ▼
+    ┌───────────────────────────────┐
+    │ On expiry_date:               │
+    │ Package status → EXPIRED      │
+    │ Remaining credits → EXPIRED   │
+    │ (visible in history, unusable)│
+    │ Student + parent notified     │
+    │ Finance log entry created     │
+    └───────────────────────────────┘
+
+RULE: Student with EXPIRED package must purchase
+      a new one before booking any session.
+      Expired credits are NOT carried over.
 ```
 
 ---
 
-**STATUS: 🟡 AWAITING APPROVAL**
-*Answer the Decision Point questions above before Phase 2 begins.*
+## Summary — Remaining Open Questions
+
+**Please answer the following to complete this document:**
+
+### WF-01 Registration
+1. **Q-WF01-1:** Student self-registers OR admin creates account only?
+2. **Q-WF01-2:** Must student be enrolled in a course before buying a package?
+
+### WF-03 Teacher Availability
+3. **Q-AV-1:** Min / max slot duration in minutes?
+4. **Q-AV-2:** How many weeks/months ahead can teacher publish slots?
+5. **Q-AV-3:** Required buffer between sessions (minutes)? Or none?
+6. **Q-AV-4:** Can teacher restrict a slot to one specific student?
+7. **Q-AV-5:** Is the platform Egypt-only (one timezone) or multi-timezone?
+
+### WF-04 Booking
+8. **Q-BK-1:** Auto-accept — per-teacher toggle or platform-wide switch?
+9. **Q-BK-2:** Credit deducted at: booking / teacher approval / session start?
+10. **Q-BK-3:** Can student book more than 1 session per day with same teacher?
+11. **Q-BK-4:** Minimum hours in advance a student must book?
+12. **Q-BK-5:** Can student add a topic/note when booking?
+13. **Q-BK-6:** Max number of pending bookings a student can have at once?
+
+### WF-05 Approval
+14. **Q-AP-1:** Hours teacher has to approve/reject before request expires?
+15. **Q-AP-2:** On expiry — auto-reject or stays pending?
+16. **Q-AP-3:** Does student see rejection reason?
+
+### WF-06 Cancellation
+17. **Q-CN-1:** Cancellation window in hours?
+18. **Q-CN-2:** Student cancels within window — forfeit / partial refund / full refund?
+19. **Q-CN-3:** Student no-show — teacher compensated?
+20. **Q-CN-4:** How many teacher cancellations before admin alert?
+21. **Q-CN-5:** Can admin override any cancellation credit decision?
+
+### WF-07 Attendance
+22. **Q-AT-1:** Attendance threshold % to count as "attended"?
+23. **Q-AT-2:** Can teacher manually override attendance status?
+24. **Q-AT-3:** Late-join grace period in minutes?
+
+### WF-08 Recording
+25. **Q-RC-1:** Does watching a recording cost a credit?
+26. **Q-RC-2:** Recording retention period in days?
+27. **Q-RC-3:** Stream only or allow download?
+28. **Q-RC-4:** Can teacher disable recording per session?
+29. **Q-RC-5:** Parent recording access — automatic or teacher must grant?
+
+---
+
+**STATUS: 🟡 IN PROGRESS**
+*WF-02 ✅ Resolved | All others pending answers above*
 *Approved by: _________________ Date: _________________*
