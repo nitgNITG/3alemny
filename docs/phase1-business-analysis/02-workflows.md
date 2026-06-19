@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.3 — WF-01 answers incorporated
+**Version:** 1.4 — WF-03 answers incorporated
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -17,11 +17,11 @@
 | Q-PKG-5 | What currency? | **EGP (Egyptian Pound)** | ✅ Resolved |
 | Q-WF01-1 | Who creates student account? | **Both** — student self-registers OR admin creates | ✅ Resolved |
 | Q-WF01-2 | Is course required before buying package? | **No** — buy package first, enrol later | ✅ Resolved |
-| Q-AV-1 | Min/max slot duration? | ⬜ Pending |
-| Q-AV-2 | How far ahead can teacher set availability? | ⬜ Pending |
-| Q-AV-3 | Buffer time between sessions? | ⬜ Pending |
-| Q-AV-4 | Slots for specific students only? | ⬜ Pending |
-| Q-AV-5 | Timezone handling? | ⬜ Pending |
+| Q-AV-1 | Min/max slot duration? | **Fixed: 50 minutes** | ✅ Resolved |
+| Q-AV-2 | How far ahead can teacher set availability? | **Unlimited** — system records actual join/leave times | ✅ Resolved |
+| Q-AV-3 | Buffer time between sessions? | **10 minutes** auto-enforced after each session | ✅ Resolved |
+| Q-AV-4 | Slots for specific students only? | **Yes** — teacher can restrict a slot to one student | ✅ Resolved |
+| Q-AV-5 | Timezone handling? | **Egypt only** (Africa/Cairo, single timezone) | ✅ Resolved |
 | Q-BK-1 | Auto-accept per teacher or platform-wide? | ⬜ Pending |
 | Q-BK-2 | When is credit deducted? | ⬜ Pending |
 | Q-BK-3 | Multiple sessions per day with same teacher? | ⬜ Pending |
@@ -149,37 +149,55 @@
 
 ---
 
-## WF-03 — Teacher Availability Management
+## WF-03 — Teacher Availability Management ✅ RESOLVED
 
 ```
 [Teacher] ──► Opens Availability Calendar
                     │
                     ▼
-              Sets weekly recurring slots
-              Slot duration: [TBD — Q-AV-1]
+              Adds available time slots
+              ┌─────────────────────────────────────┐
+              │ SLOT RULES:                         │
+              │ • Fixed duration: 50 minutes        │
+              │ • Auto 10-min buffer after each     │
+              │   slot (system enforced)            │
+              │ • Effective slot block = 60 min     │
+              │ • Publish ahead: unlimited          │
+              │ • Timezone: Africa/Cairo only       │
+              └─────────────────────────────────────┘
                     │
                     ▼
-              Sets blocked dates (holidays, leave)
+              For each slot, teacher chooses:
+              ┌───────────────────────────┐
+              │ A) Open — any enrolled    │
+              │    student can book       │
+              │                           │
+              │ B) Reserved — for one     │
+              │    specific student only  │
+              └───────────────────────────┘
                     │
                     ▼
-              System generates bookable slots
-              Visible to enrolled students
-              Buffer between slots: [TBD — Q-AV-3]
+              Sets blocked dates (holidays, personal leave)
                     │
                     ▼
-              Teacher can:
-              ├── Edit future unbooked slots ✓
-              ├── Delete future unbooked slots ✓
-              ├── Block already-booked slot ──► reschedule WF triggered
-              └── Set slot for specific student only? [TBD — Q-AV-4]
+              System shows slots to eligible students:
+              • "Open" slots → all enrolled students see them
+              • "Reserved" slots → only that student sees them
+                    │
+                    ▼
+              Attendance tracked automatically:
+              • Join time recorded when participant joins
+              • Leave time recorded when participant leaves
+              • Duration = leave_time − join_time
 ```
 
-**Pending Decisions:**
-- [ ] **Q-AV-1:** Minimum and maximum slot duration (minutes)?
-- [ ] **Q-AV-2:** How far ahead can teacher publish availability?
-- [ ] **Q-AV-3:** Is a buffer time required between sessions?
-- [ ] **Q-AV-4:** Can a teacher restrict a slot to a specific student?
-- [ ] **Q-AV-5:** Timezone — is the platform Egypt-only (EGP currency suggests so) or multi-timezone?
+**Business Rules confirmed for WF-03:**
+- ✅ Session duration is **fixed at 50 minutes**
+- ✅ **10-minute buffer** automatically enforced after each session (teacher's next slot cannot start for 60 min)
+- ✅ Teacher can publish availability **as far ahead as they want** (no cap)
+- ✅ Teacher can **restrict a slot to one specific student**
+- ✅ Platform is **Egypt-only** — single timezone `Africa/Cairo`, all times displayed in EET/EEST
+- ✅ System records actual **join time and leave time** for each participant
 
 ---
 
