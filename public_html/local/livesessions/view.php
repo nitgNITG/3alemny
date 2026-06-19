@@ -58,6 +58,29 @@ $info .= html_writer::end_div();
 echo $info;
 
 // ---------------------------------------------------------------
+// Start button (teacher/admin on scheduled sessions)
+// ---------------------------------------------------------------
+if ($is_teacher && $session->status === 'scheduled') {
+    $starturl = new moodle_url('/local/livesessions/start.php',
+        ['id' => $id, 'sesskey' => sesskey()]);
+    echo html_writer::div(
+        html_writer::link($starturl, get_string('startsession', 'local_livesessions'),
+            ['class' => 'btn btn-primary btn-lg mr-2',
+             'onclick' => "return confirm('" . get_string('confirmstartsession', 'local_livesessions') . "');"]),
+        'mb-4'
+    );
+}
+
+// Host button (teacher/admin re-entering a live session)
+if ($is_teacher && $session->status === 'live' && !empty($session->host_url)) {
+    echo html_writer::div(
+        html_writer::link($session->host_url, get_string('hostroom', 'local_livesessions'),
+            ['class' => 'btn btn-primary btn-lg mr-2', 'target' => '_blank']),
+        'mb-4'
+    );
+}
+
+// ---------------------------------------------------------------
 // Join button (students, when live)
 // ---------------------------------------------------------------
 // Students can join if session is live OR up to 15 min early (scheduled).

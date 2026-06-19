@@ -116,13 +116,39 @@ if (empty($sessions)) {
 
         $actions = [];
 
-        // Join button (if live).
-        if ($s->status === 'live' && !empty($s->join_url) &&
-                has_capability('local/livesessions:joinSession', $context)) {
+        // Start button (teacher/admin on scheduled sessions).
+        if ($s->status === 'scheduled' &&
+                has_capability('local/livesessions:editSession', $context)) {
+            $starturl = new moodle_url('/local/livesessions/start.php',
+                ['id' => $s->id, 'sesskey' => sesskey()]);
             $actions[] = html_writer::link(
-                $s->join_url,
+                $starturl,
+                get_string('startsession', 'local_livesessions'),
+                ['class' => 'btn btn-primary btn-sm',
+                 'onclick' => "return confirm('" . get_string('confirmstartsession', 'local_livesessions') . "');"]
+            );
+        }
+
+        // Host button (teacher/admin on live sessions — re-opens host URL).
+        if ($s->status === 'live' && !empty($s->host_url) &&
+                has_capability('local/livesessions:editSession', $context)) {
+            $actions[] = html_writer::link(
+                $s->host_url,
+                get_string('hostroom', 'local_livesessions'),
+                ['class' => 'btn btn-primary btn-sm', 'target' => '_blank']
+            );
+        }
+
+        // Join button (students — if live or within 15 min of start).
+        $can_join_now = in_array($s->status, ['live', 'scheduled'])
+            && ($s->starttime - 900) <= time()
+            && !empty($s->join_url);
+        if ($can_join_now && has_capability('local/livesessions:joinSession', $context)) {
+            $join_url = new moodle_url('/local/livesessions/join.php', ['id' => $s->id]);
+            $actions[] = html_writer::link(
+                $join_url,
                 get_string('join', 'local_livesessions'),
-                ['class' => 'btn btn-success btn-sm', 'target' => '_blank']
+                ['class' => 'btn btn-success btn-sm']
             );
         }
 

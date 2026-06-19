@@ -361,3 +361,10 @@ $string['datefrom']                  = 'From';
 $string['dateto']                    = 'To';
 $string['apply']                     = 'Apply';
 $string['backtodashboard']           = 'Back to Dashboard';
+
+// Start session strings
+$string['startsession']            = 'Start Session';
+$string['confirmstartsession']     = 'This will mark the session as LIVE and open the host room. Continue?';
+$string['sessionstarted']          = 'Session is now live.';
+$string['cannotstartcompleted']    = 'Cannot start a session that is already completed or cancelled.';
+$string['hostroom']                = 'Host Room';
