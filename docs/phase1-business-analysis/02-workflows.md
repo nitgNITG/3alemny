@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.6 — WF-04 resolved; WF-02 package structure corrected
+**Version:** 1.7 — WF-05 resolved
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -33,9 +33,9 @@
 | Q-PKG-SIZES | Package session counts? | **8, 12, or 20 sessions** — tiered pricing (more = cheaper per session) | ✅ Resolved |
 | Q-PKG-PREF | Session time preference? | Student selects **morning or evening** preference when booking | ✅ Resolved |
 | Q-PKG-VALIDITY | Package validity period? | **One academic year** (not fixed days) — the year the student is enrolled in | ✅ Resolved |
-| Q-AP-1 | Teacher response window (hours)? | ⬜ Pending |
-| Q-AP-2 | Expired requests — auto-reject or stays pending? | ⬜ Pending |
-| Q-AP-3 | Does student see rejection reason? | ⬜ Pending |
+| Q-AP-1 | Teacher response window? | **Until start of teacher's first session** on the booked day | ✅ Resolved |
+| Q-AP-2 | Expired requests — auto-reject or stays pending? | **Auto-cancel** if deadline passed before session; **stays pending** if session is live (teacher may accept mid-session); **credit refunded** if session ends with no attendance | ✅ Resolved |
+| Q-AP-3 | Does student see rejection reason? | **Yes** | ✅ Resolved |
 | Q-CN-1 | Cancellation window? | ⬜ Pending |
 | Q-CN-2 | Partial credit refund supported? | ⬜ Pending |
 | Q-CN-3 | Teacher paid on student no-show? | ⬜ Pending |
@@ -303,39 +303,59 @@
 
 ---
 
-## WF-05 — Session Approval (Teacher)
+## WF-05 — Session Approval (Teacher) ✅ RESOLVED
 
 ```
 [Teacher] ◄── Notification: "New session request from [Student]"
                     │
                     ▼
-              Reviews: student name, date/time, note
-              Must respond within [TBD — Q-AP-1] hours
+              Reviews: student name, date/time, note/topic
+              ┌─────────────────────────────────────────────┐
+              │ DEADLINE: start of teacher's FIRST session  │
+              │ on the booked day                           │
+              │ (not a fixed number of hours)               │
+              └─────────────────────────────────────────────┘
                     │
               ┌─────┴──────┐
               ▼            ▼
-          APPROVE       REJECT
+          APPROVE       REJECT (optional reason)
               │            │
               ▼            ▼
-         Zoom meeting  Optional reason entered
-         auto-created  [visible to student? TBD Q-AP-3]
-         via API            │
-              │             ▼
-              ▼        Credit reservation RELEASED
-         Credit DEDUCTED   Student notified
-         [timing TBD]      Can rebook a different slot
-              │
-              ▼
+         Zoom meeting  Reason visible to student ✅
+         auto-created       │
+         via S2S API        ▼
+              │        Credit REFUNDED to student wallet
+              ▼        Student notified
+         Session status: CONFIRMED
          Student receives:
-         • Confirmation notification
-         • Zoom join link (embedded room)
-         • Calendar reminder set
+         • Confirmation + join link (embedded room)
+         • Calendar entry
+
+─────────────────────────────────────────────
+  DEADLINE EXPIRY & AUTO-STATES:
+─────────────────────────────────────────────
+
+  SCENARIO A — Deadline passed, session not yet started:
+  ──► Booking AUTO-CANCELLED
+  ──► Credit REFUNDED
+  ──► Student notified: "Booking expired — teacher did not respond"
+
+  SCENARIO B — Booking arrives while session is LIVE (emergency):
+  ──► Stays PENDING (teacher may accept mid-session)
+  ──► If teacher accepts → session runs / credit kept
+  ──► No timeout during live session
+
+  SCENARIO C — Session time ends, no attendance recorded:
+  ──► Credit REFUNDED automatically
+  ──► Session marked: NO-SHOW / EXPIRED
 ```
 
-**Pending Decisions:**
-- [ ] **Q-AP-1:** How many hours does teacher have to respond before request expires?
-- [ ] **Q-AP-2:** On expiry — auto-reject and notify student, or remain pending indefinitely?
-- [ ] **Q-AP-3:** Does student see the teacher's rejection reason?
+**Business Rules confirmed for WF-05:**
+- ✅ Teacher must respond **before the start of their first session** on the booked day
+- ✅ If deadline passes **before session starts** → booking auto-cancelled → credit refunded to student
+- ✅ If booking arrives **while session is already live** → stays PENDING (teacher may accept mid-session / emergency walk-in)
+- ✅ If session time **ends with no attendance** → credit refunded automatically
+- ✅ Student **sees the rejection reason** if teacher provides one
 
 ---
 
