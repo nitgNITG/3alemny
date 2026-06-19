@@ -32,10 +32,5 @@ if ($session->status === 'scheduled') {
     \core\notification::success(get_string('sessionstarted', 'local_livesessions'));
 }
 
-// Redirect teacher to the host URL (Zoom host link, BBB moderator URL, etc.)
-$host_url = $session->host_url ?? $session->join_url ?? '';
-if ($host_url) {
-    redirect($host_url);
-} else {
-    redirect(new moodle_url('/local/livesessions/view.php', ['id' => $id]));
-}
+// Redirect teacher into the embedded room page.
+redirect(new moodle_url('/local/livesessions/room.php', ['id' => $id]));

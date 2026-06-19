@@ -29,6 +29,30 @@ if ($hassiteconfig) {
     ));
 
     // ---------------------------------------------------------------
+    // Zoom Meeting SDK credentials (for embedded room)
+    // ---------------------------------------------------------------
+    $settings->add(new admin_setting_heading(
+        'local_livesessions/zoom_sdk_heading',
+        get_string('zoom_sdk_heading', 'local_livesessions'),
+        get_string('zoom_sdk_heading_desc', 'local_livesessions')
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_livesessions/zoom_sdk_key',
+        get_string('zoom_sdk_key',      'local_livesessions'),
+        get_string('zoom_sdk_key_desc', 'local_livesessions'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_livesessions/zoom_sdk_secret',
+        get_string('zoom_sdk_secret',      'local_livesessions'),
+        get_string('zoom_sdk_secret_desc', 'local_livesessions'),
+        ''
+    ));
+
+    // ---------------------------------------------------------------
     // Webhook secret
     // ---------------------------------------------------------------
     $settings->add(new admin_setting_configpasswordunmask(

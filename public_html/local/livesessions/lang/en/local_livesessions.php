@@ -368,3 +368,13 @@ $string['confirmstartsession']     = 'This will mark the session as LIVE and ope
 $string['sessionstarted']          = 'Session is now live.';
 $string['cannotstartcompleted']    = 'Cannot start a session that is already completed or cancelled.';
 $string['hostroom']                = 'Host Room';
+
+// Embedded room strings
+$string['enterroom']              = 'Enter Room';
+$string['sessionnotlive']         = 'This session has not started yet.';
+$string['zoom_sdk_heading']       = 'Zoom Embedded Meeting (SDK)';
+$string['zoom_sdk_heading_desc']  = 'Required for sessions to open inside Moodle. Get these from your Zoom Marketplace app → App Credentials → Meeting SDK.';
+$string['zoom_sdk_key']           = 'Meeting SDK Key';
+$string['zoom_sdk_key_desc']      = 'Your Zoom Meeting SDK Key (SDK Key, not API Key).';
+$string['zoom_sdk_secret']        = 'Meeting SDK Secret';
+$string['zoom_sdk_secret_desc']   = 'Your Zoom Meeting SDK Secret.';

@@ -72,10 +72,11 @@ if ($is_teacher && $session->status === 'scheduled') {
 }
 
 // Host button (teacher/admin re-entering a live session)
-if ($is_teacher && $session->status === 'live' && !empty($session->host_url)) {
+if ($is_teacher && $session->status === 'live') {
+    $room_url = new moodle_url('/local/livesessions/room.php', ['id' => $id]);
     echo html_writer::div(
-        html_writer::link($session->host_url, get_string('hostroom', 'local_livesessions'),
-            ['class' => 'btn btn-primary btn-lg mr-2', 'target' => '_blank']),
+        html_writer::link($room_url, get_string('enterroom', 'local_livesessions'),
+            ['class' => 'btn btn-primary btn-lg mr-2']),
         'mb-4'
     );
 }
@@ -90,9 +91,9 @@ $can_join = $is_student
     && !empty($session->join_url);
 
 if ($can_join) {
-    $join_url = new moodle_url('/local/livesessions/join.php', ['id' => $session->id]);
+    $room_url = new moodle_url('/local/livesessions/room.php', ['id' => $session->id]);
     echo html_writer::div(
-        html_writer::link($join_url->out(false), get_string('joinsession', 'local_livesessions'),
+        html_writer::link($room_url->out(false), get_string('joinsession', 'local_livesessions'),
             ['class' => 'btn btn-success btn-lg']),
         'mb-4'
     );

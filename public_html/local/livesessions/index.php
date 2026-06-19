@@ -141,14 +141,23 @@ if (empty($sessions)) {
 
         // Join button (students — if live or within 15 min of start).
         $can_join_now = in_array($s->status, ['live', 'scheduled'])
-            && ($s->starttime - 900) <= time()
-            && !empty($s->join_url);
+            && ($s->starttime - 900) <= time();
         if ($can_join_now && has_capability('local/livesessions:joinSession', $context)) {
-            $join_url = new moodle_url('/local/livesessions/join.php', ['id' => $s->id]);
+            $room_url = new moodle_url('/local/livesessions/room.php', ['id' => $s->id]);
             $actions[] = html_writer::link(
-                $join_url,
+                $room_url,
                 get_string('join', 'local_livesessions'),
                 ['class' => 'btn btn-success btn-sm']
+            );
+        }
+
+        // Enter room button (teacher — re-enter live session).
+        if ($s->status === 'live' && has_capability('local/livesessions:editSession', $context)) {
+            $room_url = new moodle_url('/local/livesessions/room.php', ['id' => $s->id]);
+            $actions[] = html_writer::link(
+                $room_url,
+                get_string('enterroom', 'local_livesessions'),
+                ['class' => 'btn btn-primary btn-sm']
             );
         }
 
