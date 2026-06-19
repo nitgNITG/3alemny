@@ -43,12 +43,14 @@ $PAGE->set_pagelayout('incourse');
 
 $form = new session_form(null, ['session' => $session, 'courseid' => $courseid]);
 
-// Pre-populate form when editing.
+// Pre-populate form: always seed courseid so the hidden field is never empty.
 if ($session) {
     $formdata              = clone $session;
-    $formdata->description_editor['text']   = $session->description;
+    $formdata->description_editor['text']   = $session->description ?? '';
     $formdata->description_editor['format'] = FORMAT_HTML;
     $form->set_data($formdata);
+} else {
+    $form->set_data(['id' => 0, 'courseid' => $courseid]);
 }
 
 if ($form->is_cancelled()) {
