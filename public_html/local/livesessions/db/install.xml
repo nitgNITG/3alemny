@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/livesessions/db" VERSION="20240701" COMMENT="XMLDB file for local_livesessions — complete final schema (v2024070101)">
+  <TABLES>
+
+    <!-- ============================================================
+         livesessions_sessions
+         Core session table.
+    ============================================================ -->
+    <TABLE NAME="livesessions_sessions" COMMENT="Live session records">
+      <FIELDS>
+        <FIELD NAME="id"                   TYPE="int"    LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="courseid"             TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="teacherid"            TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="title"                TYPE="char"   LENGTH="255" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="description"          TYPE="text"                NOTNULL="false"/>
+        <FIELD NAME="provider"             TYPE="char"   LENGTH="50"  NOTNULL="true"  DEFAULT="zoom"/>
+        <FIELD NAME="provider_meeting_id"  TYPE="char"   LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="join_url"             TYPE="char"   LENGTH="1333" NOTNULL="false"/>
+        <FIELD NAME="host_url"             TYPE="char"   LENGTH="1333" NOTNULL="false"/>
+        <FIELD NAME="starttime"            TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="endtime"              TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="duration"             TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="60"/>
+        <FIELD NAME="capacity"             TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="status"               TYPE="char"   LENGTH="20"  NOTNULL="true"  DEFAULT="scheduled"/>
+        <FIELD NAME="recording_status"     TYPE="char"   LENGTH="20"  NOTNULL="true"  DEFAULT="none"/>
+        <FIELD NAME="finalised_at"         TYPE="int"    LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="timecreated"          TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified"         TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="createdby"            TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary"    TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_course"  TYPE="foreign" FIELDS="courseid"  REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="fk_teacher" TYPE="foreign" FIELDS="teacherid" REFTABLE="user"   REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_courseid"  UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="idx_teacherid" UNIQUE="false" FIELDS="teacherid"/>
+        <INDEX NAME="idx_starttime" UNIQUE="false" FIELDS="starttime"/>
+        <INDEX NAME="idx_status"    UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_attendance
+         One row per student per session.
+    ============================================================ -->
+    <TABLE NAME="livesessions_attendance" COMMENT="Per-student attendance">
+      <FIELDS>
+        <FIELD NAME="id"                  TYPE="int"    LENGTH="10" NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"           TYPE="int"    LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="userid"              TYPE="int"    LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="join_time"           TYPE="int"    LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="leave_time"          TYPE="int"    LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="duration_attended"   TYPE="int"    LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="join_count"          TYPE="int"    LENGTH="3"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="last_join_time"      TYPE="int"    LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="attendance_percent"  TYPE="number" LENGTH="5"  DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="attendance_status"   TYPE="char"   LENGTH="20" NOTNULL="true"  DEFAULT="pending"/>
+        <FIELD NAME="recording_access"    TYPE="int"    LENGTH="1"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timecreated"         TYPE="int"    LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified"        TYPE="int"    LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary"        TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_session"     TYPE="foreign" FIELDS="sessionid" REFTABLE="livesessions_sessions" REFFIELDS="id"/>
+        <KEY NAME="fk_user"        TYPE="foreign" FIELDS="userid"    REFTABLE="user"                  REFFIELDS="id"/>
+        <KEY NAME="uniq_sess_user" TYPE="unique"  FIELDS="sessionid,userid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_sessionid" UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="idx_userid"    UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_status"    UNIQUE="false" FIELDS="attendance_status"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_att_segments
+         Granular join/leave segments for overlap calculation.
+    ============================================================ -->
+    <TABLE NAME="livesessions_att_segments" COMMENT="Attendance join/leave segments">
+      <FIELDS>
+        <FIELD NAME="id"           TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="attendanceid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="sessionid"    TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="userid"       TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="join_time"    TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="leave_time"   TYPE="int" LENGTH="10" NOTNULL="false"/>
+        <FIELD NAME="duration"     TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_attendanceid"  UNIQUE="false" FIELDS="attendanceid"/>
+        <INDEX NAME="idx_session_user"  UNIQUE="false" FIELDS="sessionid,userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_join_tokens
+         One-time tokens for the student join flow.
+    ============================================================ -->
+    <TABLE NAME="livesessions_join_tokens" COMMENT="One-time join tokens">
+      <FIELDS>
+        <FIELD NAME="id"          TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"   TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="userid"      TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="token"       TYPE="char" LENGTH="64" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="expires"     TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="used"        TYPE="int"  LENGTH="1"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="uniq_token"       UNIQUE="true"  FIELDS="token"/>
+        <INDEX NAME="idx_session_user" UNIQUE="false" FIELDS="sessionid,userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_provider_events
+         Raw webhook events from video providers.
+    ============================================================ -->
+    <TABLE NAME="livesessions_provider_events" COMMENT="Raw provider webhook events">
+      <FIELDS>
+        <FIELD NAME="id"           TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"    TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="provider"     TYPE="char" LENGTH="50"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="event_type"   TYPE="char" LENGTH="100" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="external_uid" TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="userid"       TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="payload"      TYPE="text"              NOTNULL="true"/>
+        <FIELD NAME="processed"    TYPE="int"  LENGTH="1"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timecreated"  TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_sessionid"  UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="idx_event_type" UNIQUE="false" FIELDS="event_type"/>
+        <INDEX NAME="idx_processed"  UNIQUE="false" FIELDS="processed"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_att_log
+         Audit log for every attendance status change.
+    ============================================================ -->
+    <TABLE NAME="livesessions_att_log" COMMENT="Attendance status change audit log">
+      <FIELDS>
+        <FIELD NAME="id"                   TYPE="int"    LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="attendanceid"         TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="sessionid"            TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="userid"               TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="changed_by"           TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="prev_status"          TYPE="char"   LENGTH="20"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="new_status"           TYPE="char"   LENGTH="20"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="prev_percent"         TYPE="number" LENGTH="5"   DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="new_percent"          TYPE="number" LENGTH="5"   DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="prev_duration"        TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="new_duration"         TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="prev_recording_access" TYPE="int"  LENGTH="1"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="new_recording_access"  TYPE="int"  LENGTH="1"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="reason"               TYPE="char"   LENGTH="255" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="timecreated"          TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_attendanceid" UNIQUE="false" FIELDS="attendanceid"/>
+        <INDEX NAME="idx_sessionid"    UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="idx_userid"       UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_finalise_log
+         History of each finalisation run per session.
+    ============================================================ -->
+    <TABLE NAME="livesessions_finalise_log" COMMENT="Finalisation run history">
+      <FIELDS>
+        <FIELD NAME="id"                TYPE="int"    LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"         TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="triggered_by"      TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="trigger_reason"    TYPE="char"   LENGTH="50"  NOTNULL="true"  DEFAULT="cron"/>
+        <FIELD NAME="students_total"    TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="students_attended" TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="students_partial"  TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="students_absent"   TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="threshold_used"    TYPE="number" LENGTH="5"   DECIMALS="2" NOTNULL="true" DEFAULT="70"/>
+        <FIELD NAME="duration_used"     TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timecreated"       TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_sessionid" UNIQUE="false" FIELDS="sessionid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_recordings
+         Full recording pipeline state (source → download → upload → ready).
+    ============================================================ -->
+    <TABLE NAME="livesessions_recordings" COMMENT="Recording pipeline metadata">
+      <FIELDS>
+        <FIELD NAME="id"               TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"        TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <!-- Upload destination provider (bunny | vdocipher) -->
+        <FIELD NAME="provider"         TYPE="char" LENGTH="30"  NOTNULL="true"  DEFAULT="bunny"/>
+        <!-- Source meeting platform (zoom | bigbluebutton | agora | 100ms) -->
+        <FIELD NAME="source_provider"  TYPE="char" LENGTH="50"  NOTNULL="false"/>
+        <FIELD NAME="idempotency_key"  TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="external_id"      TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="download_url"     TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="download_token"   TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="video_url"        TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="embed_url"        TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="thumbnail_url"    TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="raw_payload"      TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="duration_seconds" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="filesize_bytes"   TYPE="int"  LENGTH="20"  NOTNULL="true"  DEFAULT="0"/>
+        <!-- Status: detected|queued|downloading|uploading|ready|failed -->
+        <FIELD NAME="status"           TYPE="char" LENGTH="20"  NOTNULL="true"  DEFAULT="queued"/>
+        <FIELD NAME="retry_count"      TYPE="int"  LENGTH="3"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="retry_after"      TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="last_error"       TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="encoding_status"  TYPE="int"  LENGTH="3"   NOTNULL="false"/>
+        <FIELD NAME="encoding_progress" TYPE="int" LENGTH="3"   NOTNULL="false"/>
+        <FIELD NAME="moodle_cmid"      TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="timecreated"      TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified"     TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary"    TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_session" TYPE="foreign" FIELDS="sessionid" REFTABLE="livesessions_sessions" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_sessionid"      UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="idx_external_id"    UNIQUE="false" FIELDS="external_id"/>
+        <INDEX NAME="idx_status"         UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="uniq_idempotency"   UNIQUE="true"  FIELDS="idempotency_key"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_rec_log
+         Audit log for recording pipeline status transitions.
+    ============================================================ -->
+    <TABLE NAME="livesessions_rec_log" COMMENT="Recording status change audit log">
+      <FIELDS>
+        <FIELD NAME="id"          TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="recordingid" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="sessionid"   TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="prev_status" TYPE="char" LENGTH="30"  NOTNULL="false"/>
+        <FIELD NAME="new_status"  TYPE="char" LENGTH="30"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="changed_by"  TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="reason"      TYPE="char" LENGTH="255" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="detail"      TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_recordingid" UNIQUE="false" FIELDS="recordingid"/>
+        <INDEX NAME="idx_sessionid"   UNIQUE="false" FIELDS="sessionid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_webhook_log
+         Raw incoming webhook payloads for debugging.
+    ============================================================ -->
+    <TABLE NAME="livesessions_webhook_log" COMMENT="Incoming webhook log">
+      <FIELDS>
+        <FIELD NAME="id"          TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="provider"    TYPE="char" LENGTH="50"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="event_type"  TYPE="char" LENGTH="100" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="sessionid"   TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="recordingid" TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="raw_body"    TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="headers"     TYPE="text"              NOTNULL="false"/>
+        <FIELD NAME="sig_valid"   TYPE="int"  LENGTH="1"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="processed"   TYPE="int"  LENGTH="1"   NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_provider"    UNIQUE="false" FIELDS="provider"/>
+        <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_bunny_polls
+         Bunny encoding poll history.
+    ============================================================ -->
+    <TABLE NAME="livesessions_bunny_polls" COMMENT="Bunny Stream encoding poll history">
+      <FIELDS>
+        <FIELD NAME="id"           TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="recordingid"  TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="video_guid"   TYPE="char" LENGTH="64" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="enc_status"   TYPE="int"  LENGTH="3"  NOTNULL="false"/>
+        <FIELD NAME="enc_progress" TYPE="int"  LENGTH="3"  NOTNULL="false"/>
+        <FIELD NAME="timecreated"  TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_recordingid" UNIQUE="false" FIELDS="recordingid"/>
+        <INDEX NAME="idx_video_guid"  UNIQUE="false" FIELDS="video_guid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_vdo_polls
+         VdoCipher encoding poll history.
+    ============================================================ -->
+    <TABLE NAME="livesessions_vdo_polls" COMMENT="VdoCipher encoding poll history">
+      <FIELDS>
+        <FIELD NAME="id"          TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="recordingid" TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="video_id"    TYPE="char" LENGTH="64" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="enc_status"  TYPE="char" LENGTH="30" NOTNULL="false"/>
+        <FIELD NAME="timecreated" TYPE="int"  LENGTH="10" NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_recordingid" UNIQUE="false" FIELDS="recordingid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_packages
+         Session-count packages available for purchase/assignment.
+    ============================================================ -->
+    <TABLE NAME="livesessions_packages" COMMENT="Session credit packages">
+      <FIELDS>
+        <FIELD NAME="id"             TYPE="int"    LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="name"           TYPE="char"   LENGTH="255" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="description"    TYPE="text"                NOTNULL="false"/>
+        <FIELD NAME="sessions_count" TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="price"          TYPE="number" LENGTH="10"  DECIMALS="2" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="currency"       TYPE="char"   LENGTH="10"  NOTNULL="true"  DEFAULT="EGP"/>
+        <FIELD NAME="validity_days"  TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="30"/>
+        <FIELD NAME="courseid"       TYPE="int"    LENGTH="10"  NOTNULL="false"/>
+        <!-- Status: active | inactive | archived -->
+        <FIELD NAME="status"         TYPE="char"   LENGTH="20"  NOTNULL="true"  DEFAULT="active"/>
+        <FIELD NAME="timecreated"    TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified"   TYPE="int"    LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_student_packages
+         Package subscriptions assigned to students.
+    ============================================================ -->
+    <TABLE NAME="livesessions_student_packages" COMMENT="Student package subscriptions">
+      <FIELDS>
+        <FIELD NAME="id"                  TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="userid"              TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="packageid"           TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="total_sessions"      TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="used_sessions"       TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="remaining_sessions"  TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="expiry_date"         TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <!-- Status: active | exhausted | expired | cancelled -->
+        <FIELD NAME="status"              TYPE="char" LENGTH="20"  NOTNULL="true"  DEFAULT="active"/>
+        <FIELD NAME="granted_by"          TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="timecreated"         TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified"        TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary"    TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_user"    TYPE="foreign" FIELDS="userid"    REFTABLE="user"                   REFFIELDS="id"/>
+        <KEY NAME="fk_package" TYPE="foreign" FIELDS="packageid" REFTABLE="livesessions_packages"  REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid"    UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_packageid" UNIQUE="false" FIELDS="packageid"/>
+        <INDEX NAME="idx_status"    UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_credit_log
+         Full credit debit/credit audit trail.
+    ============================================================ -->
+    <TABLE NAME="livesessions_credit_log" COMMENT="Credit consumption audit log">
+      <FIELDS>
+        <FIELD NAME="id"             TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="userid"         TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="packageid"      TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="sub_id"         TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="sessionid"      TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <!-- Action: granted | consumed | refunded | expired -->
+        <FIELD NAME="action"         TYPE="char" LENGTH="20"  NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="credits_before" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="credits_after"  TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="changed_by"     TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="reason"         TYPE="char" LENGTH="255" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="timecreated"    TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid"    UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="idx_sub_id"    UNIQUE="false" FIELDS="sub_id"/>
+        <INDEX NAME="idx_sessionid" UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="idx_action"    UNIQUE="false" FIELDS="action"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- ============================================================
+         livesessions_device_sessions
+         Concurrent device tracking per student per session (Feature 6.1).
+    ============================================================ -->
+    <TABLE NAME="livesessions_device_sessions" COMMENT="Active device slots per student per session">
+      <FIELDS>
+        <FIELD NAME="id"           TYPE="int"  LENGTH="10"  NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="sessionid"    TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="userid"       TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="device_token" TYPE="char" LENGTH="128" NOTNULL="true"  DEFAULT=""/>
+        <FIELD NAME="joined_at"    TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="left_at"      TYPE="int"  LENGTH="10"  NOTNULL="false"/>
+        <FIELD NAME="ip"           TYPE="char" LENGTH="45"  NOTNULL="false"/>
+        <FIELD NAME="user_agent"   TYPE="char" LENGTH="255" NOTNULL="false"/>
+        <FIELD NAME="timecreated"  TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int"  LENGTH="10"  NOTNULL="true"  DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_session_user" UNIQUE="false" FIELDS="sessionid,userid"/>
+        <INDEX NAME="idx_device_token" UNIQUE="false" FIELDS="device_token"/>
+        <INDEX NAME="idx_joined_at"    UNIQUE="false" FIELDS="joined_at"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>
