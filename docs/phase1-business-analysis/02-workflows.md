@@ -1,7 +1,7 @@
 # Business Workflows
 **Document:** WF-001
 **Phase:** 1 — Business Analysis
-**Version:** 1.5 — WF-03 corrected & completed
+**Version:** 1.6 — WF-04 resolved; WF-02 package structure corrected
 **Status:** 🟡 IN PROGRESS — remaining questions below
 
 ---
@@ -24,12 +24,15 @@
 | Q-AV-4 | Slots for specific students only? | **Yes** — teacher restricts slot → student gets Accept/Reject → if rejected, slot reopens for all | ✅ Resolved |
 | Q-AV-4b | Student reschedule window? | Student can reschedule up to **30 minutes before** session start | ✅ Resolved |
 | Q-AV-5 | Timezone handling? | **Multi-timezone** — each user sees times in their own timezone; teacher sets in their TZ, student sees in theirs | ✅ Resolved |
-| Q-BK-1 | Auto-accept per teacher or platform-wide? | ⬜ Pending |
-| Q-BK-2 | When is credit deducted? | ⬜ Pending |
-| Q-BK-3 | Multiple sessions per day with same teacher? | ⬜ Pending |
-| Q-BK-4 | Minimum advance booking notice (hours)? | ⬜ Pending |
-| Q-BK-5 | Can student add note when booking? | ⬜ Pending |
-| Q-BK-6 | Max concurrent active bookings per student? | ⬜ Pending |
+| Q-BK-1 | Auto-accept per teacher or platform-wide? | **Teacher must approve** each booking manually | ✅ Resolved |
+| Q-BK-2 | When is credit deducted? | **At booking time** (not after session) | ✅ Resolved |
+| Q-BK-3 | Multiple sessions per day with same teacher? | **Yes** | ✅ Resolved |
+| Q-BK-4 | Minimum advance booking notice (hours)? | **1 hour** minimum before session start | ✅ Resolved |
+| Q-BK-5 | Can student add note when booking? | **Yes** | ✅ Resolved |
+| Q-BK-6 | Max concurrent active bookings per student? | **12** | ✅ Resolved |
+| Q-PKG-SIZES | Package session counts? | **8, 12, or 20 sessions** — tiered pricing (more = cheaper per session) | ✅ Resolved |
+| Q-PKG-PREF | Session time preference? | Student selects **morning or evening** preference when booking | ✅ Resolved |
+| Q-PKG-VALIDITY | Package validity period? | **One academic year** (not fixed days) — the year the student is enrolled in | ✅ Resolved |
 | Q-AP-1 | Teacher response window (hours)? | ⬜ Pending |
 | Q-AP-2 | Expired requests — auto-reject or stays pending? | ⬜ Pending |
 | Q-AP-3 | Does student see rejection reason? | ⬜ Pending |
@@ -148,6 +151,9 @@
 - ✅ Currency: **EGP**
 - ✅ No package gifting or transfer
 - ✅ Both online payment and admin manual assignment supported
+- ✅ Package sizes: **8 sessions / 12 sessions / 20 sessions** — tiered pricing (more sessions = better price per session)
+- ✅ Student selects **morning or evening** time preference when purchasing/booking
+- ✅ Package validity: **one full academic year** (the year the student is currently enrolled in), NOT a fixed number of days
 
 ---
 
@@ -236,61 +242,64 @@
 
 ---
 
-## WF-04 — Session Booking (Student)
+## WF-04 — Session Booking (Student) ✅ RESOLVED
 
 ```
-[Student] ──► Opens teacher calendar / available slots
+[Student] ──► Opens teacher profile / available slots
                     │
                     ▼
-              Views available slots
-              (filtered: student enrolled, has credits, no overlap)
+              Filters by preference:
+              ┌──────────────────────────┐
+              │ • Morning slots          │
+              │ • Evening slots          │
+              └──────────────────────────┘
                     │
                     ▼
-              Selects slot
-              Adds note/topic: [TBD — Q-BK-5]
+              Selects a 50-min slot (shown in student's timezone)
+              Adds note/topic for the teacher (optional but available)
                     │
                     ▼
-              ┌──────────────────────────────────┐
-              │ System validates:                │
-              │ ✓ Student has active package     │
-              │ ✓ Student has ≥ 1 credit         │
-              │ ✓ Package not expired            │
-              │ ✓ Slot still available           │
-              │ ✓ No overlapping booking         │
-              │ ✓ Minimum notice met [TBD Q-BK-4]│
-              └──────────────────────────────────┘
+              ┌──────────────────────────────────────┐
+              │ System validates:                    │
+              │ ✓ Student has active package         │
+              │ ✓ Student has ≥ 1 credit remaining   │
+              │ ✓ Package not expired (within        │
+              │   academic year)                     │
+              │ ✓ Slot still available               │
+              │ ✓ No overlapping booking for student │
+              │ ✓ Session is ≥ 1 hour away           │
+              │ ✓ Student has < 12 active bookings   │
+              └──────────────────────────────────────┘
                     │
               ┌─────┴──────┐
               ▼            ▼
-           VALID        INVALID → Error shown, booking blocked
+           VALID        INVALID ──► Error shown, booking blocked
               │
               ▼
-         Credit RESERVED (held, not yet deducted)
-         Deduction timing: [TBD — Q-BK-2]
+         Credit DEDUCTED immediately from student wallet
+         (1 credit per session, at booking time)
+         Booking status: PENDING TEACHER APPROVAL
+         Slot marked as RESERVED (not visible to other students)
               │
               ▼
-         ┌──────────────────────────────┐
-         │ Teacher approval mode?       │
-         │ [TBD — Q-BK-1]              │
-         └──────────────────────────────┘
+         Teacher notified → go to WF-05 (Approval)
               │
-        ┌─────┴──────┐
-        ▼            ▼
-   Auto-Accept   Manual Review ──► [WF-05]
-        │
-        ▼
-   Zoom created immediately
-   Credit deducted [TBD timing]
-   Both notified
+              ▼
+         Student sees booking in "My Sessions":
+         Status: ⏳ Pending Approval
+         Note: credit already deducted; refunded if teacher rejects
 ```
 
-**Pending Decisions:**
-- [ ] **Q-BK-1:** Auto-accept toggle per teacher, or one platform-wide setting?
-- [ ] **Q-BK-2:** Credit deducted at: (a) booking, (b) teacher approval, or (c) session start?
-- [ ] **Q-BK-3:** Can student book more than 1 session per day with same teacher?
-- [ ] **Q-BK-4:** Minimum advance booking notice in hours?
-- [ ] **Q-BK-5:** Can student add a note/topic when booking?
-- [ ] **Q-BK-6:** Maximum number of pending/upcoming bookings per student at once?
+**Business Rules confirmed for WF-04:**
+- ✅ **Teacher must manually approve** every booking (no auto-accept)
+- ✅ **Credit deducted at booking time** — not at approval, not at session
+- ✅ If teacher **rejects** → credit is refunded to student wallet
+- ✅ Student can book **multiple sessions per day** with the same teacher
+- ✅ Minimum booking notice: **1 hour** before session start
+- ✅ Student can add a **note/topic** when booking
+- ✅ Maximum **12 active (upcoming) bookings** per student at any time
+- ✅ Student filters slots by **morning or evening** preference
+- ✅ Package validity runs for **the full academic year** of enrolment
 
 ---
 
